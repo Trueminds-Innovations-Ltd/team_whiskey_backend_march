@@ -93,20 +93,20 @@ builder.Services.AddAuthorization(options =>
 /// Controllers + Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(/*c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "TalentFlow API v1", Version = "v1" });
     c.SwaggerDoc("v2", new OpenApiInfo { Title = "TalentFlow API v2", Version = "v2" });
     c.SwaggerDoc("v3", new OpenApiInfo { Title = "TalentFlow API v3", Version = "v3" });
     c.SwaggerDoc("v4", new OpenApiInfo { Title = "TalentFlow API v4", Version = "v4" });
     c.SwaggerDoc("v5", new OpenApiInfo { Title = "TalentFlow API v5", Version = "v5" });
-});
+}*/);
 
 var app = builder.Build();
 
 // Enable Swagger UI
 app.UseSwagger();
-app.UseSwaggerUI(c =>
+app.UseSwaggerUI(/*c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "TalentFlow API v1");
     c.SwaggerEndpoint("/swagger/v2/swagger.json", "TalentFlow API v2");
@@ -114,8 +114,10 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v4/swagger.json", "TalentFlow API v4");
     c.SwaggerEndpoint("/swagger/v5/swagger.json", "TalentFlow API v5");
     c.RoutePrefix = "swagger"; // UI available at /swagger
-});
-
+}*/);
+//Enviromental Secting
+var port = Environment.GetEnvironmentVariable("PORT") ?? "500";
+app.Urls.Add($"http://*:{port}");
 // Map Auth
 app.UseAuthentication();
 app.UseAuthorization();
