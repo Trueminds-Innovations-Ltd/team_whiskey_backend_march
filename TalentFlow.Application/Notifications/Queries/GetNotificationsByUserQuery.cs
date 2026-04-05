@@ -1,4 +1,7 @@
 ﻿using MediatR;
-using TalentFlow.Application.Notifications.Commands;
+using TalentFlow.Application.Notifications.DTOs;
 
-public record GetNotificationsByUserQuery(Guid UserId) : IRequest<List<NotificationDto>>;
+namespace TalentFlow.Application.Notifications.Queries
+{
+    public record GetNotificationsByUserQuery(Guid UserId) : IRequest<List<NotificationDto>>;
+}

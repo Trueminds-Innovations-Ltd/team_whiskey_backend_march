@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using TalentFlow.Application.Notifications.Commands;
+using TalentFlow.Application.Notifications.DTOs;
+using TalentFlow.Application.Notifications.Queries;
 
 //[ApiExplorerSettings(GroupName = "v5")]
 [ApiController]

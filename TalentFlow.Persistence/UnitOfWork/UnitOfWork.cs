@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿// ... existing using statements
 using MediatR;
+using TalentFlow.Application.Assessments.Events;
 using TalentFlow.Application.Common.Interfaces;
 using TalentFlow.Domain.Common;
 
@@ -18,24 +19,17 @@ namespace TalentFlow.Persistence
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            // Save changes to the database
             var result = await _context.SaveChangesAsync(cancellationToken);
 
-            // Collect domain events from tracked entities
             var entitiesWithEvents = _context.ChangeTracker
                 .Entries<EntityBase>()
                 .Where(e => e.Entity.DomainEvents.Any())
                 .Select(e => e.Entity)
                 .ToList();
 
-            var domainEvents = entitiesWithEvents
-                .SelectMany(e => e.DomainEvents)
-                .ToList();
-
-            // Clear events from entities
+            var domainEvents = entitiesWithEvents.SelectMany(e => e.DomainEvents).ToList();
             entitiesWithEvents.ForEach(e => e.ClearDomainEvents());
 
-            // Dispatch domain events via MediatR: map domain events to application notifications
             foreach (var domainEvent in domainEvents)
             {
                 switch (domainEvent)
@@ -60,6 +54,14 @@ namespace TalentFlow.Persistence
                         await _mediator.Publish(new TalentFlow.Application.Notifications.Events.NotificationSentEvent(notificationSent.Notification.Id), cancellationToken);
                         break;
 
+                    case TalentFlow.Domain.Events.AssessmentCreatedDomainEvent assessmentCreated:
+                        await _mediator.Publish(new AssessmentCreatedNotification(assessmentCreated), cancellationToken);
+                        break;
+
+                    case TalentFlow.Domain.Events.QuestionAddedDomainEvent questionAdded:
+                        await _mediator.Publish(new QuestionAddedNotification(questionAdded), cancellationToken);
+                        break;
+
                     case INotification notification:
                         await _mediator.Publish(notification, cancellationToken);
                         break;
@@ -68,7 +70,6 @@ namespace TalentFlow.Persistence
                         break;
                 }
             }
-
 
             return result;
         }

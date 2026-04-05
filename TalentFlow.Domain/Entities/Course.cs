@@ -1,6 +1,5 @@
 ﻿using TalentFlow.Domain.Common;
 
-
 namespace TalentFlow.Domain.Entities
 {
     public class Course : EntityBase
@@ -22,7 +21,6 @@ namespace TalentFlow.Domain.Entities
             Description = description;
             Slug = GenerateSlug(title);
 
-            // Raise domain-level event
             AddDomainEvent(new TalentFlow.Domain.Events.CourseCreatedDomainEvent(this));
         }
 

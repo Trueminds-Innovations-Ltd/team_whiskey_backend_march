@@ -3,7 +3,7 @@ using TalentFlow.Application.Common.Interfaces;
 using TalentFlow.Domain.Entities;
 using TalentFlow.Persistence;
 
-namespace TalentFlow.Infrastructure.Repositories
+namespace TalentFlow.Persistence.Repositories
 {
     public class UserRepository : IUserRepository
     {

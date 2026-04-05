@@ -1,6 +1,5 @@
 ﻿using TalentFlow.Domain.Common;
-
-
+using TalentFlow.Domain.Events;
 
 namespace TalentFlow.Domain.Entities
 {
@@ -20,15 +19,13 @@ namespace TalentFlow.Domain.Entities
             Email = email;
             FullName = name;
 
-            // Raise domain-level event
-            AddDomainEvent(new TalentFlow.Domain.Events.UserCreatedDomainEvent(this));
+            AddDomainEvent(new UserRegisteredDomainEvent(this));
         }
 
         public void UpdateProfile(string name)
         {
             FullName = name;
-            AddDomainEvent(new TalentFlow.Domain.Events.UserProfileUpdatedDomainEvent(this));
+            AddDomainEvent(new UserProfileUpdatedDomainEvent(this));
         }
-
     }
 }

@@ -3,14 +3,18 @@ using TalentFlow.Domain.Entities;
 
 namespace TalentFlow.Domain.Events
 {
-    public class NotificationSentDomainEvent : IDomainEvent
+    /// <summary>
+    /// Domain event raised when a notification is sent.
+    /// </summary>
+    public class NotificationSentDomainEvent : DomainEvent
     {
         public Notification Notification { get; }
-        public DateTime OccurredOn { get; } = DateTime.UtcNow;
+        public DateTime OccurredOn { get; }
 
         public NotificationSentDomainEvent(Notification notification)
         {
             Notification = notification;
+            OccurredOn = DateTime.UtcNow;
         }
     }
 }

@@ -5,6 +5,10 @@
         public string Slug { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public string InstructorName { get; set; } = string.Empty;
+        public Guid Id { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Bio { get; set; } = string.Empty;
         public List<EnrollmentDto> Enrollments { get; set; } = new();
     }
 

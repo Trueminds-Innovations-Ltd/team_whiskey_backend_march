@@ -9,10 +9,6 @@ namespace TalentFlow.Domain.Entities
         public Guid CourseId { get; private set; }
         public DateTime EnrolledAt { get; private set; }
 
-        // Navigation properties (optional but recommended)
-        public User? User { get; private set; }
-        public Course? Course { get; private set; }
-
         private Enrollment() { } // EF Core
 
         public Enrollment(Guid userId, Guid courseId)
