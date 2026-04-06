@@ -1,20 +1,28 @@
-﻿# Base runtime image
+﻿# Base runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-
-# Use Render's PORT environment variable
 ENV ASPNETCORE_URLS=http://+:$PORT
-
-# Expose a generic port (Render will override)
 EXPOSE 8080
 
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+
+# Copy only solution + project files first (better caching)
+COPY TalentFlow.sln .
+COPY TalentFlow.Api/*.csproj TalentFlow.Api/
+COPY TalentFlow.Application/*.csproj TalentFlow.Application/
+COPY TalentFlow.Domain/*.csproj TalentFlow.Domain/
+COPY TalentFlow.Infrastructure/*.csproj TalentFlow.Infrastructure/
+COPY TalentFlow.Persistence/*.csproj TalentFlow.Persistence/
+
+# Restore
+RUN dotnet restore TalentFlow.sln
+
+# Copy everything else
 COPY . .
 
-# 🔥 IMPORTANT: Make sure this path is correct in your repo
-RUN dotnet restore TalentFlow.Api/TalentFlow.Api.csproj
+# Publish
 RUN dotnet publish TalentFlow.Api/TalentFlow.Api.csproj -c Release -o /app/publish
 
 # Final stage
