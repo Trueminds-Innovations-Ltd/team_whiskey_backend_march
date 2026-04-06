@@ -5,7 +5,7 @@ ENV ASPNETCORE_URLS=http://+:80
 EXPOSE 80
 
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY . .
 RUN dotnet restore TalentFlow.Api/TalentFlow.Api.csproj
