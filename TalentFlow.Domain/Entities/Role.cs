@@ -5,7 +5,8 @@ namespace TalentFlow.Domain.Entities
     public class Role : EntityBase
     {
         public Guid Id { get; private set; }
-        public string Name { get; private set; }
+
+        public string Name { get; private set; } = null!; // ✅ FIX
 
         private readonly List<User> _users = new();
         public IReadOnlyCollection<User> Users => _users.AsReadOnly();

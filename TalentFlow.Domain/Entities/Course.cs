@@ -5,34 +5,55 @@ namespace TalentFlow.Domain.Entities
     public class Course : EntityBase
     {
         public Guid Id { get; private set; }
-        public string Slug { get; private set; }
-        public string Title { get; private set; }
-        public string Description { get; private set; }
+        public string Title { get; private set; } = string.Empty;
+        public string Description { get; private set; } = string.Empty;
+        public string Slug { get; private set; } = string.Empty;
+        public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
+        // Audit fields
+        public string? UpdatedBy { get; private set; }
+        public DateTime? UpdatedAt { get; private set; }
+        public string? DeletedBy { get; private set; }
+        public DateTime? DeletedAt { get; private set; }
+        public bool IsDeleted { get; private set; }
+
+        // Enrollments collection
         private readonly List<Enrollment> _enrollments = new();
         public IReadOnlyCollection<Enrollment> Enrollments => _enrollments.AsReadOnly();
 
         private Course() { } // EF Core
 
-        public Course(string title, string description)
+        public Course(string title, string description, string slug)
         {
             Id = Guid.NewGuid();
             Title = title;
             Description = description;
-            Slug = GenerateSlug(title);
-
-            AddDomainEvent(new TalentFlow.Domain.Events.CourseCreatedDomainEvent(this));
+            Slug = slug;
+            CreatedAt = DateTime.UtcNow;
+            IsDeleted = false;
         }
 
-        public void Enroll(User user)
+        public void UpdateDetails(string title, string description, string updatedBy)
         {
-            var enrollment = new Enrollment(user.Id, Id);
-            _enrollments.Add(enrollment);
-
-            AddDomainEvent(new TalentFlow.Domain.Events.CourseEnrollmentDomainEvent(enrollment, this, user));
+            Title = title;
+            Description = description;
+            UpdatedBy = updatedBy;
+            UpdatedAt = DateTime.UtcNow;
         }
 
-        private string GenerateSlug(string title) =>
-            title.ToLower().Replace(" ", "-");
+        public void SoftDelete(string deletedBy)
+        {
+            IsDeleted = true;
+            DeletedBy = deletedBy;
+            DeletedAt = DateTime.UtcNow;
+        }
+
+        // Domain/Entities/Course.cs
+        public void Enroll(User learner)
+        {
+            var enrollment = new Enrollment(Id, learner.Id); // ✅ use learner.Id
+            _enrollments.Add(enrollment);
+        }
+
     }
 }

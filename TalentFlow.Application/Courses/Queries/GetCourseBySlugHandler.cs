@@ -1,23 +1,39 @@
-﻿using MediatR;
-using TalentFlow.Application.Common.Interfaces;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
 using TalentFlow.Application.Courses.DTOs;
-using TalentFlow.Application.Courses.Mappings;
+using TalentFlow.Application.Courses.Queries;
+using TalentFlow.Application.Common.Interfaces;
 
-namespace TalentFlow.Application.Courses.Queries
+namespace TalentFlow.Application.Courses.Handlers
 {
     public class GetCourseBySlugHandler : IRequestHandler<GetCourseBySlugQuery, CourseDto?>
     {
-        private readonly ICourseRepository _courseRepository;
+        private readonly ICourseRepository _repo;
 
-        public GetCourseBySlugHandler(ICourseRepository courseRepository)
+        public GetCourseBySlugHandler(ICourseRepository repo)
         {
-            _courseRepository = courseRepository;
+            _repo = repo;
         }
 
-        public async Task<CourseDto?> Handle(GetCourseBySlugQuery request, CancellationToken cancellationToken)
+        public async Task<CourseDto?> Handle(GetCourseBySlugQuery request, CancellationToken ct)
         {
-            var course = await _courseRepository.GetBySlugAsync(request.Slug, cancellationToken);
-            return course?.ToDto();
+            var course = await _repo.GetBySlugAsync(request.Slug, ct);
+            if (course == null) return null;
+
+            return new CourseDto
+            {
+                Id = course.Id,
+                Title = course.Title,
+                Description = course.Description,
+                Slug = course.Slug,
+                CreatedAt = course.CreatedAt,
+                UpdatedBy = course.UpdatedBy,
+                UpdatedAt = course.UpdatedAt,
+                DeletedBy = course.DeletedBy,
+                DeletedAt = course.DeletedAt,
+                IsDeleted = course.IsDeleted
+            };
         }
     }
 }

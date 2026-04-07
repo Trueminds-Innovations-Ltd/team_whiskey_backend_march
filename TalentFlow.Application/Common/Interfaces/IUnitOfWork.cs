@@ -15,10 +15,7 @@ namespace TalentFlow.Application.Common.Interfaces
         Task PublishAsync(string eventName, object payload, CancellationToken cancellationToken = default);
     }
 
-    public interface IJwtTokenService
-    {
-        string GenerateToken(string learnerId, string email);
-    }
+    
 
     public interface INotificationService
     {

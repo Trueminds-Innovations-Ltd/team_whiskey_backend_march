@@ -1,14 +1,20 @@
-﻿using TalentFlow.Domain.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using TalentFlow.Domain.Entities;
 
 namespace TalentFlow.Application.Common.Interfaces
 {
     public interface ICourseRepository
     {
-        Task<Course?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default);
-        Task<Course?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-        Task<List<Course>> GetAllAsync(CancellationToken cancellationToken = default);
-        Task<List<Course>> GetByLearnerIdAsync(Guid userId, CancellationToken cancellationToken = default);
-        Task AddAsync(Course course, CancellationToken cancellationToken = default);
-        Task UpdateAsync(Course course, CancellationToken cancellationToken = default);
+        Task<Course?> GetByIdAsync(Guid id, CancellationToken ct = default);
+        Task<Course?> GetBySlugAsync(string slug, CancellationToken ct = default);
+        Task<List<Course>> GetAllAsync(CancellationToken ct = default);
+        Task<List<Course>> GetByLearnerIdAsync(Guid userId, CancellationToken ct = default);
+
+        Task AddAsync(Course course, CancellationToken ct = default);
+        Task UpdateAsync(Course course, CancellationToken ct = default);
+        Task SoftDeleteAsync(Course course, CancellationToken ct = default);
     }
 }

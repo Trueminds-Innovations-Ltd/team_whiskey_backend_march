@@ -1,27 +1,28 @@
-﻿using MediatR;
+﻿// Application/Courses/Handlers/CreateCourseHandler.cs
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
+using TalentFlow.Application.Courses.Commands;
 using TalentFlow.Application.Common.Interfaces;
 using TalentFlow.Domain.Entities;
 
-namespace TalentFlow.Application.Courses.Commands
+namespace TalentFlow.Application.Courses.Handlers
 {
-    public class CreateCourseHandler : IRequestHandler<CreateCourseCommand, string>
+    public class CreateCourseHandler : IRequestHandler<CreateCourseCommand, Guid>
     {
-        private readonly ICourseRepository _courseRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICourseRepository _repo;
 
-        public CreateCourseHandler(ICourseRepository courseRepository, IUnitOfWork unitOfWork)
+        public CreateCourseHandler(ICourseRepository repo)
         {
-            _courseRepository = courseRepository;
-            _unitOfWork = unitOfWork;
+            _repo = repo ?? throw new ArgumentNullException(nameof(repo));
         }
 
-        public async Task<string> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
+        public async Task<Guid> Handle(CreateCourseCommand request, CancellationToken ct)
         {
-            var course = new Course(request.Title, request.Description);
-            await _courseRepository.AddAsync(course, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return course.Slug;
+            var course = new Course(request.Title, request.Description, request.Slug);
+            await _repo.AddAsync(course, ct);
+            return course.Id; // ✅ returns Guid
         }
     }
 }

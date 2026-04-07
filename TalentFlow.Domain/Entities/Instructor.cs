@@ -6,9 +6,11 @@ namespace TalentFlow.Domain.Entities
     public class Instructor : EntityBase
     {
         public Guid Id { get; private set; }
-        public string FullName { get; private set; }
-        public string Email { get; private set; }
-        public string Bio { get; private set; }
+
+        public string FullName { get; private set; } = null!; // ✅ FIX
+        public string Email { get; private set; } = null!;    // ✅ FIX
+        public string Bio { get; private set; } = null!;      // ✅ FIX
+
         public DateTime CreatedAt { get; private set; }
 
         private Instructor() { } // EF Core

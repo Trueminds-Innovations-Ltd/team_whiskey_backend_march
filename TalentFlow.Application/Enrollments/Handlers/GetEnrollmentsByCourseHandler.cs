@@ -1,6 +1,10 @@
-﻿using MediatR;
-using TalentFlow.Application.Enrollments.Queries;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
 using TalentFlow.Application.Enrollments.DTOs;
+using TalentFlow.Application.Enrollments.Queries;
 using TalentFlow.Application.Common.Interfaces;
 
 namespace TalentFlow.Application.Enrollments.Handlers
@@ -23,7 +27,12 @@ namespace TalentFlow.Application.Enrollments.Handlers
             {
                 UserId = e.UserId,
                 CourseId = e.CourseId,
-                EnrolledAt = e.EnrolledAt
+                EnrolledAt = e.EnrolledAt,
+                UpdatedBy = e.UpdatedBy,
+                UpdatedAt = e.UpdatedAt,
+                DeletedBy = e.DeletedBy,
+                DeletedAt = e.DeletedAt,
+                IsDeleted = e.IsDeleted
             }).ToList();
         }
     }

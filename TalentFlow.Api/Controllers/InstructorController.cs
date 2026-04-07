@@ -1,13 +1,16 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TalentFlow.Application.Instructors.Commands;
-using TalentFlow.Application.Instructors.Queries;
 using TalentFlow.Application.Instructors.DTOs;
+using TalentFlow.Application.Instructors.Queries;
 
 namespace TalentFlow.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "Admin,Instructor")]
+
     public class InstructorController : ControllerBase
     {
         private readonly IMediator _mediator;

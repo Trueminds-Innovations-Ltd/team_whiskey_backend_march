@@ -9,16 +9,10 @@ namespace TalentFlow.Application.Courses.Mappings
         {
             return new CourseDto
             {
-                Slug = course.Slug,
+                Id = course.Id,
                 Title = course.Title,
                 Description = course.Description,
-                Enrollments = course.Enrollments
-                    .Select(e => new EnrollmentDto
-                    {
-                        UserId = e.UserId,
-                        EnrolledAt = e.EnrolledAt
-                    })
-                    .ToList()
+                Slug = course.Slug
             };
         }
     }

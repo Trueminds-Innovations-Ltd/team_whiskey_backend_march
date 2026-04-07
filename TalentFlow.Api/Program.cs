@@ -5,7 +5,7 @@ using System.Text;
 using TalentFlow.Application.Common.Interfaces;
 using TalentFlow.Application.Courses.Events;
 using TalentFlow.Application.Notifications.Commands;
-using TalentFlow.Infrastructure.Auth;
+using TalentFlow.Infrastructure.Security;
 using TalentFlow.Infrastructure.Events;
 using TalentFlow.Persistence;
 using TalentFlow.Persistence.Interceptors;
@@ -13,30 +13,34 @@ using TalentFlow.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configure Kestrel BEFORE building the app
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+// ============================
+// LOGGING (IMPORTANT)
+// ============================
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(int.Parse(port));
-});
+// ============================
+// SERVICES
+// ============================
 
-// 2. Service registrations
+// MediatR
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(CourseCreatedEvent).Assembly);
     cfg.RegisterServicesFromAssembly(typeof(SendNotificationCommandHandler).Assembly);
 });
 
+// Interceptors
 builder.Services.AddScoped<DomainEventSaveChangesInterceptor>();
 
+// Database
 builder.Services.AddDbContext<TalentFlowDbContext>((sp, options) =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     options.AddInterceptors(sp.GetRequiredService<DomainEventSaveChangesInterceptor>());
 });
 
-// Repositories & Unit of Work
+// Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
@@ -45,31 +49,26 @@ builder.Services.AddScoped<IInstructorRepository, InstructorRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<ILessonRepository, LessonRepository>();
+builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
+
+// Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
-// Messaging provider selection
-var messagingProvider = builder.Configuration["Messaging:Provider"];
-if (messagingProvider == "Kafka")
-{
-    var config = new ProducerConfig
-    {
-        BootstrapServers = builder.Configuration["Kafka:BootstrapServers"]
-    };
-    builder.Services.AddSingleton<IProducer<string, string>>(
-        new ProducerBuilder<string, string>(config).Build());
-    builder.Services.AddScoped<IEventStreamPublisher, KafkaEventStreamPublisher>();
-}
-else
-{
-    builder.Services.AddScoped<IEventStreamPublisher>(sp =>
-        new RabbitMqEventStreamPublisher("localhost"));
-}
+// JWT service
+//builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
 
-// Notification service
-builder.Services.AddScoped<INotificationService, TalentFlow.Application.Notifications.NotificationService>();
+// ============================
+// AUTH SERVICE + AUTHENTICATION
+// ============================
+var jwtSecret = builder.Configuration["Jwt:Secret"]
+    ?? throw new Exception("JWT Secret not configured");
 
-// Authentication & Authorization
+// Register JwtTokenService with secret
+builder.Services.AddSingleton<IJwtTokenService>(sp =>
+    new JwtTokenService(jwtSecret));
+
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
@@ -82,38 +81,92 @@ builder.Services.AddAuthentication("Bearer")
             ValidIssuer = "TalentFlow",
             ValidAudience = "TalentFlowApi",
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]))
+                Encoding.UTF8.GetBytes(jwtSecret))
         };
     });
 
+// Authorization
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireLearner", policy =>
         policy.RequireRole("Learner"));
 });
 
-// Controllers, Swagger
+// ============================
+// MESSAGING (EVENT-DRIVEN)
+// ============================
+var messagingProvider = builder.Configuration["Messaging:Provider"];
+
+if (messagingProvider == "Kafka")
+{
+    var kafkaServers = builder.Configuration["Kafka:BootstrapServers"]
+        ?? throw new Exception("Kafka BootstrapServers not configured");
+
+    var config = new ProducerConfig
+    {
+        BootstrapServers = kafkaServers
+    };
+
+    builder.Services.AddSingleton<IProducer<string, string>>(
+        new ProducerBuilder<string, string>(config).Build());
+
+    builder.Services.AddScoped<IEventStreamPublisher, KafkaEventStreamPublisher>();
+}
+else
+{
+    var rabbitHost = builder.Configuration["RabbitMQ:Host"]
+        ?? throw new Exception("RabbitMQ Host not configured");
+
+    builder.Services.AddScoped<IEventStreamPublisher>(sp =>
+        new RabbitMqEventStreamPublisher(rabbitHost));
+}
+
+// ============================
+// NOTIFICATIONS
+// ============================
+builder.Services.AddScoped<INotificationService, TalentFlow.Application.Notifications.NotificationService>();
+
+// Controllers & Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// 3. Build the app
+// ============================
+// BUILD APP
+// ============================
 var app = builder.Build();
 
-// 4. Middleware pipeline
-if (app.Environment.IsDevelopment() || true)
+// ============================
+// MIDDLEWARE PIPELINE
+// ============================
+
+// Global error handling
+app.UseExceptionHandler("/error");
+app.MapGet("/error", () => Results.Problem("An unexpected error occurred"));
+
+// Favicon placeholder
+app.MapGet("/favicon.ico", () => Results.NoContent());
+
+// Health check
+app.MapGet("/", () => Results.Ok("TalentFlow API is running"));
+app.MapGet("/health", () => Results.Ok("Healthy"));
+
+// Swagger
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.RoutePrefix = "swagger";
-    });
-}
-app.MapMethods("/", new[] { "GET", "HEAD" }, () => Results.Ok("TalentFlow API is running"));
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "TalentFlow API v1");
+});
 
-
+// Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Controllers
 app.MapControllers();
 
-app.Run();
+// ============================
+// RUN APP (Render-friendly)
+// ============================
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Run($"http://0.0.0.0:{port}");

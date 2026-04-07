@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using TalentFlow.Application.Common.Interfaces;
 using TalentFlow.Domain.Entities;
 
@@ -13,37 +17,41 @@ namespace TalentFlow.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<Notification?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<Notification?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        {
+            return await _context.Notifications.FirstOrDefaultAsync(n => n.Id == id && !n.IsDeleted, ct);
+        }
+
+        public async Task<List<Notification>> GetByUserIdAsync(Guid userId, CancellationToken ct = default)
         {
             return await _context.Notifications
-                .FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
+                .Where(n => n.UserId == userId && !n.IsDeleted)
+                .ToListAsync(ct);
         }
 
-        public async Task<List<Notification>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<List<Notification>> GetAllAsync(CancellationToken ct = default)
         {
             return await _context.Notifications
-                .Where(n => n.UserId == userId)
-                .ToListAsync(cancellationToken);
+                .Where(n => !n.IsDeleted)
+                .ToListAsync(ct);
         }
 
-        public async Task AddAsync(Notification notification, CancellationToken cancellationToken = default)
+        public async Task AddAsync(Notification notification, CancellationToken ct = default)
         {
-            await _context.Notifications.AddAsync(notification, cancellationToken);
+            await _context.Notifications.AddAsync(notification, ct);
         }
 
-        public Task UpdateAsync(Notification notification, CancellationToken cancellationToken = default)
+        public Task UpdateAsync(Notification notification, CancellationToken ct = default)
         {
             _context.Notifications.Update(notification);
             return Task.CompletedTask;
         }
 
-        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+        public Task SoftDeleteAsync(Notification notification, CancellationToken ct = default)
         {
-            var notification = await GetByIdAsync(id, cancellationToken);
-            if (notification != null)
-            {
-                _context.Notifications.Remove(notification);
-            }
+            notification.SoftDelete(notification.DeletedBy ?? "system");
+            _context.Notifications.Update(notification);
+            return Task.CompletedTask;
         }
     }
 }

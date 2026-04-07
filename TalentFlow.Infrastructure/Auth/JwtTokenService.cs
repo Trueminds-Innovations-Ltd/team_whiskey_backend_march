@@ -7,7 +7,7 @@ using TalentFlow.Application.Common.Interfaces;
 
 namespace TalentFlow.Infrastructure.Auth
 {
-    public class JwtTokenService : IJwtTokenService
+    public class JwtTokenService
     {
         private readonly IConfiguration _configuration;
 
@@ -16,17 +16,27 @@ namespace TalentFlow.Infrastructure.Auth
             _configuration = configuration;
         }
 
-        public string GenerateToken(string learnerId, string email)
+        public string GenerateToken(string learnerId, string email, string roleName)
         {
+            if (string.IsNullOrWhiteSpace(learnerId))
+                throw new ArgumentException("LearnerId cannot be null or empty", nameof(learnerId));
+            if (string.IsNullOrWhiteSpace(email))
+                throw new ArgumentException("Email cannot be null or empty", nameof(email));
+            if (string.IsNullOrWhiteSpace(roleName))
+                throw new ArgumentException("RoleName cannot be null or empty", nameof(roleName));
+
             var claims = new[]
             {
                 new Claim("learner_id", learnerId),
                 new Claim(ClaimTypes.Email, email),
-                new Claim(ClaimTypes.Role, "Learner")
+                new Claim(ClaimTypes.Role, roleName)
             };
 
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]));
+            // ✅ Ensure JWT secret exists
+            var secret = _configuration["Jwt:Secret"]
+                         ?? throw new InvalidOperationException("JWT secret is not configured");
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(

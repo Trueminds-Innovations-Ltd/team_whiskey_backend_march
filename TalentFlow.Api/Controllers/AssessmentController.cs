@@ -1,4 +1,8 @@
-﻿using MediatR;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TalentFlow.Application.Assessments.Commands;
 using TalentFlow.Application.Assessments.Queries;
@@ -8,42 +12,58 @@ namespace TalentFlow.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class AssessmentController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public AssessmentController(IMediator mediator) => _mediator = mediator;
 
-        /// <summary>Create a new assessment</summary>
-        [HttpPost]
-        public async Task<ActionResult<AssessmentDto>> CreateAssessment(CreateAssessmentCommand command)
+        public AssessmentController(IMediator mediator)
         {
-            var assessment = await _mediator.Send(command);
+            _mediator = mediator;
+        }
+
+        // GET: api/assessment/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<AssessmentDto>> GetAssessment(Guid id)
+        {
+            var assessment = await _mediator.Send(new GetAssessmentQuery(id));
+            if (assessment == null) return NotFound();
+
             return Ok(assessment);
         }
 
-        /// <summary>Get assessment by ID</summary>
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AssessmentDto>> GetAssessmentById(Guid id)
+        // GET: api/assessment/course/{courseId}
+        [HttpGet("course/{courseId}")]
+        public async Task<ActionResult<List<AssessmentDto>>> GetAssessmentsByCourse(Guid courseId)
         {
-            var assessment = await _mediator.Send(new GetAssessmentByIdQuery(id));
-            return assessment is null ? NotFound() : Ok(assessment);
-        }
+            var assessments = await _mediator.Send(new GetAssessmentsByCourseQuery(courseId));
+            if (assessments == null || assessments.Count == 0) return NotFound();
 
-        /// <summary>Get all assessments</summary>
-        [HttpGet]
-        public async Task<ActionResult<List<AssessmentDto>>> GetAllAssessments()
-        {
-            var assessments = await _mediator.Send(new GetAllAssessmentsQuery());
             return Ok(assessments);
         }
 
-        /// <summary>Add a question to an assessment</summary>
-        [HttpPost("{id}/questions")]
-        public async Task<ActionResult> AddQuestion(Guid id, AddQuestionCommand command)
+        // PUT: api/assessment/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAssessment(Guid id, [FromBody] UpdateAssessmentCommand command)
         {
-            if (id != command.AssessmentId) return BadRequest("Assessment ID mismatch");
+            if (id != command.Id) return BadRequest("ID mismatch");
+
+            var updatedBy = User.FindFirst("learner_id")?.Value ?? "system";
+            var enrichedCommand = command with { UpdatedBy = updatedBy };
+
+            var result = await _mediator.Send(enrichedCommand);
+            return result ? Ok(new { message = "Assessment updated" }) : NotFound();
+        }
+
+        // DELETE: api/assessment/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAssessment(Guid id)
+        {
+            var deletedBy = User.FindFirst("learner_id")?.Value ?? "system";
+            var command = new DeleteAssessmentCommand(id, deletedBy);
+
             var result = await _mediator.Send(command);
-            return result ? Ok() : BadRequest("Failed to add question");
+            return result ? Ok(new { message = "Assessment deleted" }) : NotFound();
         }
     }
 }

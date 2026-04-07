@@ -1,4 +1,7 @@
-﻿using MediatR;
+﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
 using TalentFlow.Application.Assessments.Commands;
 using TalentFlow.Application.Assessments.DTOs;
 using TalentFlow.Domain.Entities;
@@ -19,7 +22,8 @@ namespace TalentFlow.Application.Assessments.Handlers
 
         public async Task<AssessmentDto> Handle(CreateAssessmentCommand request, CancellationToken cancellationToken)
         {
-            var assessment = new Assessment(request.Title, request.Instructions);
+            // Match the entity constructor
+            var assessment = new Assessment(request.CourseId, request.Title, request.Instructions);
 
             await _assessmentRepository.AddAsync(assessment, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using TalentFlow.Application.Common.Interfaces;
 using TalentFlow.Domain.Entities;
 
@@ -13,28 +17,35 @@ namespace TalentFlow.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<Enrollment?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<Enrollment?> GetByIdAsync(Guid id, CancellationToken ct = default)
         {
-            return await _context.Enrollments.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+            return await _context.Enrollments.FirstOrDefaultAsync(e => e.Id == id, ct);
         }
 
-        public async Task<List<Enrollment>> GetByCourseIdAsync(Guid courseId, CancellationToken cancellationToken = default)
+        public async Task<List<Enrollment>> GetByCourseIdAsync(Guid courseId, CancellationToken ct = default)
         {
-            return await _context.Enrollments.Where(e => e.CourseId == courseId).ToListAsync(cancellationToken);
+            return await _context.Enrollments.Where(e => e.CourseId == courseId && !e.IsDeleted).ToListAsync(ct);
         }
 
-        public async Task<List<Enrollment>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<List<Enrollment>> GetByUserIdAsync(Guid userId, CancellationToken ct = default)
         {
-            return await _context.Enrollments.Where(e => e.UserId == userId).ToListAsync(cancellationToken);
+            return await _context.Enrollments.Where(e => e.UserId == userId && !e.IsDeleted).ToListAsync(ct);
         }
 
-        public async Task AddAsync(Enrollment enrollment, CancellationToken cancellationToken = default)
+        public async Task AddAsync(Enrollment enrollment, CancellationToken ct = default)
         {
-            await _context.Enrollments.AddAsync(enrollment, cancellationToken);
+            await _context.Enrollments.AddAsync(enrollment, ct);
         }
 
-        public Task UpdateAsync(Enrollment enrollment, CancellationToken cancellationToken = default)
+        public Task UpdateAsync(Enrollment enrollment, CancellationToken ct = default)
         {
+            _context.Enrollments.Update(enrollment);
+            return Task.CompletedTask;
+        }
+
+        public Task SoftDeleteAsync(Enrollment enrollment, CancellationToken ct = default)
+        {
+            enrollment.SoftDelete(enrollment.DeletedBy ?? "system");
             _context.Enrollments.Update(enrollment);
             return Task.CompletedTask;
         }
