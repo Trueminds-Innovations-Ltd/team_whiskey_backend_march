@@ -1,33 +1,26 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using TalentFlow.Application.Users.Commands;
+﻿using MediatR;
 using TalentFlow.Application.Users.DTOs;
 using TalentFlow.Application.Common.Interfaces;
 using TalentFlow.Domain.Entities;
 
-namespace TalentFlow.Application.Users.Handlers
+namespace TalentFlow.Application.Users.Commands
 {
-    public class RegisterUserHandler : IRequestHandler<RegisterUserCommand, UserDto>
+    public class RegisterUserCommandHandler
+        : IRequestHandler<RegisterUserCommand, UserDto>
     {
         private readonly IUserRepository _userRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IPasswordHasher _passwordHasher;
 
-        public RegisterUserHandler(
-            IUserRepository userRepository,
-            IUnitOfWork unitOfWork,
-            IPasswordHasher passwordHasher)
+        public RegisterUserCommandHandler(IUserRepository userRepository)
         {
             _userRepository = userRepository;
-            _unitOfWork = unitOfWork;
-            _passwordHasher = passwordHasher;
         }
 
         public async Task<UserDto> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
-            var passwordHash = _passwordHasher.Hash(request.Password);
+            // Hash password
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
+            // Use domain constructor (LearnerId generated internally)
             var user = new User(
                 request.Email,
                 request.FullName,
@@ -36,7 +29,6 @@ namespace TalentFlow.Application.Users.Handlers
             );
 
             await _userRepository.AddAsync(user, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new UserDto
             {

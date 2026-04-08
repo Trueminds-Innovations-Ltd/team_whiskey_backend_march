@@ -20,18 +20,16 @@ namespace TalentFlow.Application.Users.Handlers
 
         public async Task<UserDto> Handle(LoginUserCommand request, CancellationToken cancellationToken)
         {
-            // Look up user by email
             var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
             if (user == null)
                 throw new UnauthorizedAccessException("Invalid credentials");
 
-            // Verify password
             if (!_passwordHasher.Verify(request.Password, user.PasswordHash))
                 throw new UnauthorizedAccessException("Invalid credentials");
 
-            // Map back to DTO
             return new UserDto
             {
+                Id = user.Id,
                 LearnerId = user.LearnerId,
                 FullName = user.FullName,
                 Email = user.Email,

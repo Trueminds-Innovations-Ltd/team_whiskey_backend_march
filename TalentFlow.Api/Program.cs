@@ -1,41 +1,64 @@
-// File Path: TalentFlow.API/Program.cs
-
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TalentFlow.Application.Common.Interfaces;
+using TalentFlow.Application.Users.Commands;
 using TalentFlow.Infrastructure.Auth;
+using TalentFlow.Infrastructure.Events;
+using TalentFlow.Infrastructure.Security;
+using TalentFlow.Infrastructure.Services;
 using TalentFlow.Persistence;
 using TalentFlow.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ✅ Bind to Render dynamic port
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(int.Parse(port));
-});
-
 // ✅ Controllers
 builder.Services.AddControllers();
 
-// ✅ Swagger
+// ✅ Swagger (always enabled, including production)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// ✅ DbContext
+// ✅ DbContext (Render/Postgres)
 builder.Services.AddDbContext<TalentFlowDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// ✅ Hosted service for DB migration/seed
+//builder.Services.AddHostedService<DatabaseInitializerHostedService>();
+
+Console.WriteLine("Connection string: " + builder.Configuration.GetConnectionString("DefaultConnection"));
+Console.WriteLine("JWT Secret: " + builder.Configuration["Jwt:Secret"]);
 
 // ✅ Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<ILessonRepository, LessonRepository>();
+builder.Services.AddScoped<IInstructorRepository, InstructorRepository>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
+builder.Services.AddScoped<IEventStreamPublisher, EventStreamPublisher>();
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+builder.Services.AddScoped<IVideoRepository, VideoRepository>();
+builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
 
-// ✅ JWT Service
+// ✅ Services
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<JwtTokenService>();
+
+// ✅ MediatR
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly); // API layer
+    cfg.RegisterServicesFromAssembly(typeof(RegisterUserCommandHandler).Assembly); // Application layer
+});
 
 // ✅ Authentication
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!);
@@ -69,24 +92,15 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequireLearner", policy => policy.RequireRole("Learner"));
 });
 
-// ✅ MediatR
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-
 var app = builder.Build();
 
-// ✅ Swagger
-app.UseSwagger(c =>
-{
-    c.RouteTemplate = "swagger/{documentName}/swagger.json";
-});
-
+// ✅ Swagger (always enabled, including production)
+app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "TalentFlow API v1");
-    c.RoutePrefix = string.Empty; // serve Swagger UI at root "/"
+    c.RoutePrefix = string.Empty; // Swagger UI at root "/"
 });
-
 
 // ✅ Middleware order
 app.UseAuthentication();

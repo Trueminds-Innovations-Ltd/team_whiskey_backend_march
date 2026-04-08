@@ -1,54 +1,66 @@
-﻿using TalentFlow.Domain.Common;
+﻿using System;
+using TalentFlow.Domain.Common;
 using TalentFlow.Domain.Events;
 
 namespace TalentFlow.Domain.Entities
 {
     public class User : EntityBase
     {
-        public Guid Id { get; private set; } // internal DB ID
+        // Primary key
+        public Guid Id { get; private set; }
 
-        public Guid LearnerId { get; private set; }   // ✅ Guid now
-        public string Email { get; private set; } = null!;
-        public string FullName { get; private set; } = null!;
-        public string PasswordHash { get; private set; } = null!;
-        public string Role { get; private set; } = null!;
+        // Business identifiers
+        public Guid LearnerId { get; private set; }   // ✅ Now a Guid
+        public string Email { get; private set; } = string.Empty;
+        public string FullName { get; private set; } = string.Empty;
 
-        private User() { } // EF Core
+        // Security
+        public string PasswordHash { get; private set; } = string.Empty;
+        public string Role { get; private set; } = "Learner";
 
-        public User(Guid learnerId, string email, string name, string passwordHash, string role)
+        // Audit fields
+        public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; private set; }
+        public string? UpdatedBy { get; private set; }
+
+        // Soft delete fields
+        public bool IsDeleted { get; private set; }
+        public string? DeletedBy { get; private set; }
+        public DateTime? DeletedAt { get; private set; }
+
+        // EF Core constructor
+        private User() { }
+
+        // Domain constructor
+        public User(string email, string fullName, string passwordHash, string role)
         {
-            if (learnerId == Guid.Empty)
-                throw new ArgumentException("LearnerId cannot be empty");
-
-            if (string.IsNullOrWhiteSpace(email))
-                throw new ArgumentException("Email cannot be empty");
-
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Full name cannot be empty");
-
-            if (string.IsNullOrWhiteSpace(passwordHash))
-                throw new ArgumentException("PasswordHash cannot be empty");
-
-            if (string.IsNullOrWhiteSpace(role))
-                throw new ArgumentException("Role cannot be empty");
-
-            Id = Guid.NewGuid();
-            LearnerId = learnerId;
+            Id = Guid.NewGuid();          // PK
+            LearnerId = Guid.NewGuid();   // ✅ Business identifier as Guid
             Email = email;
-            FullName = name;
+            FullName = fullName;
             PasswordHash = passwordHash;
             Role = role;
 
-            AddDomainEvent(new UserRegisteredDomainEvent(this));
+            AddDomainEvent(new UserCreatedDomainEvent(this));
         }
 
-        public void UpdateProfile(string name)
+        // Update profile
+        public void UpdateProfile(string fullName, string email, string updatedBy)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Full name cannot be empty");
+            FullName = fullName;
+            Email = email;
+            UpdatedAt = DateTime.UtcNow;
+            UpdatedBy = updatedBy;
 
-            FullName = name;
             AddDomainEvent(new UserProfileUpdatedDomainEvent(this));
+        }
+
+        // Soft delete
+        public void SoftDelete(string deletedBy)
+        {
+            IsDeleted = true;
+            DeletedBy = deletedBy;
+            DeletedAt = DateTime.UtcNow;
         }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TalentFlow.Persistence;
 
@@ -11,9 +12,11 @@ using TalentFlow.Persistence;
 namespace TalentFlow.Persistence.Migrations
 {
     [DbContext(typeof(TalentFlowDbContext))]
-    partial class TalentFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260408052819_initsart")]
+    partial class initsart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

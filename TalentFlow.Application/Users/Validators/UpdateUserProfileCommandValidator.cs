@@ -7,7 +7,17 @@ namespace TalentFlow.Application.Users.Validators
     {
         public UpdateUserProfileCommandValidator()
         {
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.FullName)
+                .NotEmpty()
+                .MaximumLength(100);
+
+            RuleFor(x => x.Email)
+                .NotEmpty()
+                .EmailAddress();
+
+            RuleFor(x => x.UpdatedBy)
+                .NotEmpty()
+                .MaximumLength(50);
         }
     }
 }
