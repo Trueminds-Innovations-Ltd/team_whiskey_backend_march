@@ -32,21 +32,31 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // ============================
-// DATABASE CONFIG (Render + Local)
+// DATABASE CONFIG (FIXED)
 // ============================
 string BuildConnectionString(string databaseUrl)
 {
-    // Example: postgres://user:pass@host:5432/dbname
+    if (string.IsNullOrEmpty(databaseUrl))
+        throw new Exception("DATABASE_URL is not set");
+
+    // 🔥 Normalize Render URL
+    databaseUrl = databaseUrl.Replace("postgresql://", "postgres://");
+
     var uri = new Uri(databaseUrl);
     var userInfo = uri.UserInfo.Split(':');
 
-    return $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true;";
+    var username = userInfo[0];
+    var password = Uri.UnescapeDataString(userInfo[1]);
+    var database = uri.AbsolutePath.TrimStart('/');
+
+    return $"Host={uri.Host};Port=5432;Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
 }
 
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-var connectionString = string.IsNullOrEmpty(databaseUrl)
-    ? builder.Configuration.GetConnectionString("DefaultConnection")
-    : BuildConnectionString(databaseUrl);
+
+var connectionString = !string.IsNullOrEmpty(databaseUrl)
+    ? BuildConnectionString(databaseUrl)
+    : builder.Configuration.GetConnectionString("DefaultConnection");
 
 if (string.IsNullOrEmpty(connectionString))
     throw new Exception("Database connection not configured");
@@ -97,11 +107,8 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(RegisterUserCommandHandler).Assembly);
 });
 
-
-
-
 // ============================
-// JWT AUTHENTICATION
+// JWT AUTHENTICATION (FIXED)
 // ============================
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
     ?? builder.Configuration["Jwt:Secret"];
@@ -118,7 +125,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false;
+    options.RequireHttpsMetadata = false; // 🔥 FIXED
     options.SaveToken = true;
 
     options.TokenValidationParameters = new TokenValidationParameters
@@ -143,6 +150,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequireLearner", p => p.RequireRole("Learner"));
 });
 
+// ============================
+// CORS (DEBUG-FRIENDLY)
+// ============================
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -150,34 +160,20 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
+
 // ============================
 // BUILD APP
 // ============================
 var app = builder.Build();
 
 // ============================
-// AUTO MIGRATION
+// MIDDLEWARE PIPELINE (CLEAN)
 // ============================
-/*using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<TalentFlowDbContext>();
-    db.Database.Migrate();
-}*/
-
-
-
-
 app.UseCors("AllowFrontend");
 
-// ============================
-// ERROR HANDLING
-// ============================
 app.UseExceptionHandler("/error");
 app.MapGet("/error", () => Results.Problem("An error occurred"));
 
-// ============================
-// SWAGGER
-// ============================
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -185,11 +181,10 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty;
 });
 
-// ============================
-// SECURITY
-// ============================
-app.UseRouting();   // 🔥 ADD THIS
 app.UseHttpsRedirection();
+
+app.UseRouting(); // 🔥 IMPORTANT
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -201,7 +196,7 @@ app.MapGet("/", () => Results.Ok("TalentFlow API Running"));
 app.MapGet("/health", () => Results.Ok("Healthy"));
 
 // ============================
-// RENDER PORT BINDING
+// PORT (RENDER)
 // ============================
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Run($"http://0.0.0.0:{port}");
