@@ -97,6 +97,9 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(RegisterUserCommandHandler).Assembly);
 });
 
+
+
+
 // ============================
 // JWT AUTHENTICATION
 // ============================
@@ -153,6 +156,17 @@ var app = builder.Build();
     var db = scope.ServiceProvider.GetRequiredService<TalentFlowDbContext>();
     db.Database.Migrate();
 }*/
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+        policy.WithOrigins("https://your-frontend.onrender.com")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
+app.UseCors("AllowFrontend");
 
 // ============================
 // ERROR HANDLING
