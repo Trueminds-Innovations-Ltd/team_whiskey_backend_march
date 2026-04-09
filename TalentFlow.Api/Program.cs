@@ -172,7 +172,7 @@ var app = builder.Build();
 app.UseCors("AllowFrontend");
 
 app.UseExceptionHandler("/error");
-app.MapGet("/error", () => Results.Problem("An error occurred"));
+app.Map("/error", () => Results.Problem("An error occurred"));
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
@@ -194,6 +194,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGet("/", () => Results.Ok("TalentFlow API Running"));
 app.MapGet("/health", () => Results.Ok("Healthy"));
+
 
 // ============================
 // PORT (RENDER)
