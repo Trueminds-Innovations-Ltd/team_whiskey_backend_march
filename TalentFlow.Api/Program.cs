@@ -172,7 +172,9 @@ var app = builder.Build();
 // ============================
 app.UseCors("AllowFrontend");
 
-app.UseExceptionHandler("/error");
+//app.UseExceptionHandler("/error");
+app.UseDeveloperExceptionPage();
+
 app.Map("/error", () => Results.Problem("An error occurred"));
 
 app.UseSwagger();
