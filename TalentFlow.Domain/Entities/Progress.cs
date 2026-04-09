@@ -4,7 +4,7 @@ using TalentFlow.Domain.Common;
 
 namespace TalentFlow.Domain.Entities
 {
-    [Table("Progress")] // matches EF query
+    [Table("progresss")] // matches EF query
     public class Progress : EntityBase
     {
         public Guid Id { get; private set; }

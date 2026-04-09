@@ -4,7 +4,7 @@ using TalentFlow.Domain.Common;
 
 namespace TalentFlow.Domain.Entities
 {
-    [Table("Certificate")] // matches EF query
+    [Table("certificates")] // matches EF query
     public class Certificate : EntityBase
     {
         public Guid Id { get; private set; }

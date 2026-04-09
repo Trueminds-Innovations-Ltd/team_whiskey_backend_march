@@ -3,7 +3,7 @@ using TalentFlow.Domain.Common;
 
 namespace TalentFlow.Domain.Entities
 {
-    [Table("AuditLog")] // matches EF query
+    [Table("auditLogs")] // matches EF query
     public class AuditLog : EntityBase
     {
         public Guid Id { get; private set; }

@@ -5,7 +5,7 @@ using TalentFlow.Domain.Events;
 
 namespace TalentFlow.Domain.Entities
 {
-    [Table("User")] // matches EF query
+    [Table("users")] // matches EF query
     public class User : EntityBase
     {
         // Primary key

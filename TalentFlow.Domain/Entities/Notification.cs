@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TalentFlow.Domain.Entities
 {
-    [Table("Notification")] // matches EF query
+    [Table("notifications")] // matches EF query
     public class Notification
     {
         public Guid Id { get; private set; }

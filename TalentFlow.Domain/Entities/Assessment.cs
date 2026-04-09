@@ -5,7 +5,7 @@ using TalentFlow.Domain.Events;
 
 namespace TalentFlow.Domain.Entities
 {
-    [Table("Assessment")] // matches EF query
+    [Table("assessments")] // matches EF query
     public class Assessment : EntityBase
     {
         public Guid Id { get; private set; }
