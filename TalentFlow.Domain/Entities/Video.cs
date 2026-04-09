@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using TalentFlow.Domain.Common;
 
 namespace TalentFlow.Domain.Entities
 {
+    [Table("Video")] // matches EF query
     public class Video : EntityBase
     {
         public Guid Id { get; private set; }

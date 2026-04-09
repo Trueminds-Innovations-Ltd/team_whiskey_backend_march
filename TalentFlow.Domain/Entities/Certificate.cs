@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using TalentFlow.Domain.Common;
 
 namespace TalentFlow.Domain.Entities
 {
+    [Table("Certificate")] // matches EF query
     public class Certificate : EntityBase
     {
         public Guid Id { get; private set; }

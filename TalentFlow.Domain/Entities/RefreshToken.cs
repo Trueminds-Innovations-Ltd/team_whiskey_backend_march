@@ -1,6 +1,9 @@
 ﻿// File Path: TalentFlow.Domain/Entities/RefreshToken.cs
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace TalentFlow.Domain.Entities
 {
+    [Table("RefreshToken")] // matches EF query
     public class RefreshToken
     {
         public Guid Id { get; set; } = Guid.NewGuid();

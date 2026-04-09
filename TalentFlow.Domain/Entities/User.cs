@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using TalentFlow.Domain.Common;
 using TalentFlow.Domain.Events;
 
 namespace TalentFlow.Domain.Entities
 {
+    [Table("User")] // matches EF query
     public class User : EntityBase
     {
         // Primary key

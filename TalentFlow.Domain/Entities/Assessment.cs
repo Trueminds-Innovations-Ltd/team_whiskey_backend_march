@@ -1,8 +1,11 @@
-﻿using TalentFlow.Domain.Common;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using TalentFlow.Domain.Common;
 using TalentFlow.Domain.Events;
+
 
 namespace TalentFlow.Domain.Entities
 {
+    [Table("Assessment")] // matches EF query
     public class Assessment : EntityBase
     {
         public Guid Id { get; private set; }

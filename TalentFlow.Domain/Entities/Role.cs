@@ -1,7 +1,9 @@
-﻿using TalentFlow.Domain.Common;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using TalentFlow.Domain.Common;
 
 namespace TalentFlow.Domain.Entities
 {
+    [Table("Role")] // matches EF query
     public class Role : EntityBase
     {
         public Guid Id { get; private set; }

@@ -1,8 +1,10 @@
 ﻿// Domain/Entities/Enrollment.cs
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TalentFlow.Domain.Entities
 {
+    [Table("Enrollment")] // matches EF query
     public class Enrollment
     {
         public Guid Id { get; private set; }

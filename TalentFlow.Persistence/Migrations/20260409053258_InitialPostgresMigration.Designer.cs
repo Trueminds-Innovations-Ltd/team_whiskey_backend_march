@@ -12,8 +12,8 @@ using TalentFlow.Persistence;
 namespace TalentFlow.Persistence.Migrations
 {
     [DbContext(typeof(TalentFlowDbContext))]
-    [Migration("20260408040742_InitLocalSql")]
-    partial class InitLocalSql
+    [Migration("20260409053258_InitialPostgresMigration")]
+    partial class InitialPostgresMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -62,7 +62,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Assessments");
+                    b.ToTable("Assessment");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.AuditLog", b =>
@@ -92,7 +92,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AuditLogs");
+                    b.ToTable("AuditLog");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Certificate", b =>
@@ -120,7 +120,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Certificates");
+                    b.ToTable("Certificate");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Course", b =>
@@ -164,7 +164,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courses");
+                    b.ToTable("Course");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Enrollment", b =>
@@ -208,7 +208,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Enrollments");
+                    b.ToTable("Enrollment");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Instructor", b =>
@@ -234,7 +234,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Instructors");
+                    b.ToTable("Instructor");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Lesson", b =>
@@ -266,7 +266,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Lessons");
+                    b.ToTable("Lesson");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Notification", b =>
@@ -310,7 +310,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notification");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Progress", b =>
@@ -336,7 +336,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Progresses");
+                    b.ToTable("Progress");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Question", b =>
@@ -358,7 +358,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Questions");
+                    b.ToTable("Question");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.RefreshToken", b =>
@@ -392,7 +392,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshToken");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Role", b =>
@@ -407,7 +407,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Role");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Team", b =>
@@ -426,7 +426,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Teams");
+                    b.ToTable("Team");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.User", b =>
@@ -434,6 +434,15 @@ namespace TalentFlow.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -444,6 +453,9 @@ namespace TalentFlow.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<Guid>("LearnerId")
                         .HasColumnType("uniqueidentifier");
@@ -460,6 +472,12 @@ namespace TalentFlow.Persistence.Migrations
                     b.Property<Guid?>("RoleId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("LearnerId")
@@ -467,7 +485,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users");
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Video", b =>
@@ -499,7 +517,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Videos");
+                    b.ToTable("Video");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Enrollment", b =>

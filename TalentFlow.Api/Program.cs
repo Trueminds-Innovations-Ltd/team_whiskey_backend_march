@@ -65,6 +65,8 @@ builder.Services.AddDbContext<TalentFlowDbContext>(options =>
     options.UseNpgsql(connectionString, npgsqlOptions =>
     {
         npgsqlOptions.EnableRetryOnFailure(5);
+        // ✅ Specify migrations assembly
+        npgsqlOptions.MigrationsAssembly("TalentFlow.Persistence");
     })
 );
 
