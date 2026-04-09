@@ -2,7 +2,7 @@
 {
     public class NotificationMessage
     {
-        public Guid LearnerId { get; set; }   // ✅ Guid instead of string
+        public Guid UserId { get; set; }   // ✅ Guid instead of string
         public string DeepLinkUrl { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
     }

@@ -18,7 +18,7 @@ namespace TalentFlow.Application.Notifications
             var evt = new NotificationSentEvent(Guid.NewGuid())
             {
                 Message = notificationMessage.Message,
-                LearnerId = notificationMessage.LearnerId,   // ✅ Guid directly
+                UserId = notificationMessage.UserId,   // ✅ Guid directly
                 DeepLinkUrl = notificationMessage.DeepLinkUrl
             };
 

@@ -22,7 +22,7 @@ namespace TalentFlow.Application.Users.EventHandlers
             // Send profile update notification
             await _notificationService.SendAsync(new NotificationMessage
             {
-                LearnerId = user.LearnerId,   // ✅ Guid directly
+                UserId = user.Id,   // ✅ Guid directly
                 DeepLinkUrl = "/me/profile",
                 Message = "Your profile has been updated successfully."
             });

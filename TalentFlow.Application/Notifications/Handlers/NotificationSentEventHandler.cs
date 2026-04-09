@@ -20,7 +20,7 @@ namespace TalentFlow.Application.Notifications.Handlers
             _logger.LogInformation(
                 "Notification sent: Id={NotificationId}, LearnerId={LearnerId}, Message={Message}, OccurredOn={OccurredOn}",
                 notification.NotificationId,
-                notification.LearnerId,
+                notification.UserId,
                 notification.Message,
                 notification.OccurredOn);
 

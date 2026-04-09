@@ -23,7 +23,7 @@ namespace TalentFlow.Infrastructure.Notifications
                 Subject = "Notification",
                 PlainTextContent = message.Message
             };
-            mail.AddTo(new EmailAddress(message.LearnerId + "@example.com"));
+            mail.AddTo(new EmailAddress(message.UserId + "@example.com"));
 
             await PollyPolicies.RetryPolicy
                 .WrapAsync(PollyPolicies.CircuitBreakerPolicy)

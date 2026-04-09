@@ -19,18 +19,18 @@ namespace TalentFlow.Application.Users.EventHandlers
         {
             var user = notification.DomainEvent.User;
 
-            // Send welcome notification
+            // Send welcome notification using UserId (the FK)
             await _notificationService.SendAsync(new NotificationMessage
             {
-                LearnerId = user.LearnerId,   // ✅ Guid directly
+                UserId = user.Id,   // ✅ use the primary key
                 DeepLinkUrl = "/me/profile",
                 Message = $"Welcome {user.FullName}! Your account has been created."
             });
 
-            // Publish to event stream (Kafka, etc.)
+            // Publish to event stream
             await _eventStream.PublishAsync("UserCreated", new
             {
-                learner_id = user.LearnerId.ToString(),  // ✅ convert Guid to string for JSON
+                user_id = user.Id.ToString(),   // ✅ consistent with FK
                 email = user.Email,
                 name = user.FullName,
                 created_at = DateTime.UtcNow

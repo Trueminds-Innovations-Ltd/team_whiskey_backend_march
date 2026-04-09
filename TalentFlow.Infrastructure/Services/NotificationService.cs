@@ -16,7 +16,7 @@ namespace TalentFlow.Infrastructure.Services
         // Send a new notification
         public async Task SendAsync(NotificationMessage notificationMessage)
         {
-            var notification = new Notification(notificationMessage.LearnerId, notificationMessage.Message);
+            var notification = new Notification(notificationMessage.UserId, notificationMessage.Message);
             notification.MarkAsSent(); // ✅ sets SentAt internally
 
             await _context.Notifications.AddAsync(notification);
