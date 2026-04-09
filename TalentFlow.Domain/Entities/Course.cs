@@ -3,7 +3,7 @@ using TalentFlow.Domain.Common;
 
 namespace TalentFlow.Domain.Entities
 {
-    [Table("courses")] // matches EF query
+    [Table("course")] // matches EF query
     public class Course : EntityBase
     {
         public Guid Id { get; private set; }

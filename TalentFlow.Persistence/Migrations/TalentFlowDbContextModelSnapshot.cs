@@ -59,7 +59,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("assessments");
+                    b.ToTable("assessment");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.AuditLog", b =>
@@ -89,7 +89,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("auditLogs");
+                    b.ToTable("auditLog");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Certificate", b =>
@@ -117,7 +117,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("certificates");
+                    b.ToTable("certificate");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Course", b =>
@@ -161,7 +161,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("courses");
+                    b.ToTable("course");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Enrollment", b =>
@@ -205,7 +205,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("enrollments");
+                    b.ToTable("enrollment");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Instructor", b =>
@@ -231,7 +231,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("instructors");
+                    b.ToTable("instructor");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Lesson", b =>
@@ -263,7 +263,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("lessons");
+                    b.ToTable("lesson");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Notification", b =>
@@ -307,7 +307,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("notifications");
+                    b.ToTable("notification");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Progress", b =>
@@ -333,7 +333,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("progresss");
+                    b.ToTable("progress");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Question", b =>
@@ -355,7 +355,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("questions");
+                    b.ToTable("question");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.RefreshToken", b =>
@@ -389,7 +389,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("refreshTokens");
+                    b.ToTable("refreshToken");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Role", b =>
@@ -404,7 +404,24 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("roles");
+                    b.ToTable("role");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            Name = "Instructor"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            Name = "Learner"
+                        });
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Team", b =>
@@ -423,7 +440,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("teams");
+                    b.ToTable("team");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.User", b =>
@@ -482,7 +499,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("users");
+                    b.ToTable("user");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Video", b =>
@@ -514,7 +531,7 @@ namespace TalentFlow.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("videos");
+                    b.ToTable("video");
                 });
 
             modelBuilder.Entity("TalentFlow.Domain.Entities.Enrollment", b =>

@@ -3,16 +3,18 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace TalentFlow.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class initialPostgres : Migration
+    public partial class SeedingTalentflowTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "assessments",
+                name: "assessment",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -28,11 +30,11 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_assessments", x => x.Id);
+                    table.PrimaryKey("PK_assessment", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "auditLogs",
+                name: "auditLog",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -44,11 +46,11 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_auditLogs", x => x.Id);
+                    table.PrimaryKey("PK_auditLog", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "certificates",
+                name: "certificate",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -60,11 +62,11 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_certificates", x => x.Id);
+                    table.PrimaryKey("PK_certificate", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "courses",
+                name: "course",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -80,11 +82,11 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_courses", x => x.Id);
+                    table.PrimaryKey("PK_course", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "instructors",
+                name: "instructor",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -95,11 +97,11 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_instructors", x => x.Id);
+                    table.PrimaryKey("PK_instructor", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "lessons",
+                name: "lesson",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -112,11 +114,11 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_lessons", x => x.Id);
+                    table.PrimaryKey("PK_lesson", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "progresss",
+                name: "progress",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -128,11 +130,11 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_progresss", x => x.Id);
+                    table.PrimaryKey("PK_progress", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "questions",
+                name: "question",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -142,11 +144,11 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_questions", x => x.Id);
+                    table.PrimaryKey("PK_question", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "refreshTokens",
+                name: "refreshToken",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -159,11 +161,11 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_refreshTokens", x => x.Id);
+                    table.PrimaryKey("PK_refreshToken", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "roles",
+                name: "role",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -171,11 +173,11 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_roles", x => x.Id);
+                    table.PrimaryKey("PK_role", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "teams",
+                name: "team",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -184,11 +186,11 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_teams", x => x.Id);
+                    table.PrimaryKey("PK_team", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "videos",
+                name: "video",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -201,11 +203,11 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_videos", x => x.Id);
+                    table.PrimaryKey("PK_video", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "users",
+                name: "user",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -224,16 +226,16 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_users", x => x.Id);
+                    table.PrimaryKey("PK_user", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_users_roles_RoleId",
+                        name: "FK_user_role_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "roles",
+                        principalTable: "role",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "enrollments",
+                name: "enrollment",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -249,28 +251,28 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_enrollments", x => x.Id);
+                    table.PrimaryKey("PK_enrollment", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_enrollments_courses_CourseId",
+                        name: "FK_enrollment_course_CourseId",
                         column: x => x.CourseId,
-                        principalTable: "courses",
+                        principalTable: "course",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_enrollments_courses_CourseId1",
+                        name: "FK_enrollment_course_CourseId1",
                         column: x => x.CourseId1,
-                        principalTable: "courses",
+                        principalTable: "course",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_enrollments_users_UserId",
+                        name: "FK_enrollment_user_UserId",
                         column: x => x.UserId,
-                        principalTable: "users",
+                        principalTable: "user",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "notifications",
+                name: "notification",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -287,44 +289,54 @@ namespace TalentFlow.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_notifications", x => x.Id);
+                    table.PrimaryKey("PK_notification", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_notifications_users_UserId",
+                        name: "FK_notification_user_UserId",
                         column: x => x.UserId,
-                        principalTable: "users",
+                        principalTable: "user",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "role",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { new Guid("11111111-1111-1111-1111-111111111111"), "Admin" },
+                    { new Guid("22222222-2222-2222-2222-222222222222"), "Instructor" },
+                    { new Guid("33333333-3333-3333-3333-333333333333"), "Learner" }
+                });
+
             migrationBuilder.CreateIndex(
-                name: "IX_enrollments_CourseId",
-                table: "enrollments",
+                name: "IX_enrollment_CourseId",
+                table: "enrollment",
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_enrollments_CourseId1",
-                table: "enrollments",
+                name: "IX_enrollment_CourseId1",
+                table: "enrollment",
                 column: "CourseId1");
 
             migrationBuilder.CreateIndex(
-                name: "IX_enrollments_UserId",
-                table: "enrollments",
+                name: "IX_enrollment_UserId",
+                table: "enrollment",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_notifications_UserId",
-                table: "notifications",
+                name: "IX_notification_UserId",
+                table: "notification",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_users_LearnerId",
-                table: "users",
+                name: "IX_user_LearnerId",
+                table: "user",
                 column: "LearnerId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_users_RoleId",
-                table: "users",
+                name: "IX_user_RoleId",
+                table: "user",
                 column: "RoleId");
         }
 
@@ -332,49 +344,49 @@ namespace TalentFlow.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "assessments");
+                name: "assessment");
 
             migrationBuilder.DropTable(
-                name: "auditLogs");
+                name: "auditLog");
 
             migrationBuilder.DropTable(
-                name: "certificates");
+                name: "certificate");
 
             migrationBuilder.DropTable(
-                name: "enrollments");
+                name: "enrollment");
 
             migrationBuilder.DropTable(
-                name: "instructors");
+                name: "instructor");
 
             migrationBuilder.DropTable(
-                name: "lessons");
+                name: "lesson");
 
             migrationBuilder.DropTable(
-                name: "notifications");
+                name: "notification");
 
             migrationBuilder.DropTable(
-                name: "progresss");
+                name: "progress");
 
             migrationBuilder.DropTable(
-                name: "questions");
+                name: "question");
 
             migrationBuilder.DropTable(
-                name: "refreshTokens");
+                name: "refreshToken");
 
             migrationBuilder.DropTable(
-                name: "teams");
+                name: "team");
 
             migrationBuilder.DropTable(
-                name: "videos");
+                name: "video");
 
             migrationBuilder.DropTable(
-                name: "courses");
+                name: "course");
 
             migrationBuilder.DropTable(
-                name: "users");
+                name: "user");
 
             migrationBuilder.DropTable(
-                name: "roles");
+                name: "role");
         }
     }
 }

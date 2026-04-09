@@ -58,7 +58,16 @@ namespace TalentFlow.Persistence
             });
 
             modelBuilder.Entity<Assessment>().Ignore(a => a.Questions);
+
+            // ✅ Seed roles
+            modelBuilder.Entity<Role>().HasData(
+                new Role(new Guid("11111111-1111-1111-1111-111111111111"), "Admin"),
+                new Role(new Guid("22222222-2222-2222-2222-222222222222"), "Instructor"),
+                new Role(new Guid("33333333-3333-3333-3333-333333333333"), "Learner")
+            );
+
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(TalentFlowDbContext).Assembly);
         }
+
     }
 }

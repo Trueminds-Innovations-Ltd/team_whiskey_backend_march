@@ -5,7 +5,7 @@ using TalentFlow.Domain.Common;
 
 namespace TalentFlow.Domain.Entities
 {
-    [Table("teams")] // matches EF query
+    [Table("team")] // matches EF query
 
     public class Team : EntityBase
     {
