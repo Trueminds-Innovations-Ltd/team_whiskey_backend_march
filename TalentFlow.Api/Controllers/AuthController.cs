@@ -40,6 +40,7 @@ namespace TalentFlow.API.Controllers
 
             return Created("auth/register", ApiResponse<object>.Success(new
             {
+                id = userDto.Id,
                 full_name = userDto.FullName,
                 email = userDto.Email,
                 role = userDto.Role,
@@ -63,6 +64,7 @@ namespace TalentFlow.API.Controllers
 
             return Ok(ApiResponse<object>.Success(new
             {
+                id = userDto.Id,
                 full_name = userDto.FullName,
                 email = userDto.Email,
                 role = userDto.Role,
