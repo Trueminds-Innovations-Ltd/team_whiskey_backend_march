@@ -38,10 +38,10 @@ namespace TalentFlow.Application.Users.Handlers
             await _userRepository.AddAsync(user, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+            // ✅ Return only the fields you want exposed
             return new UserDto
             {
                 Id = user.Id,
-                //LearnerId = user.LearnerId,
                 Email = user.Email,
                 FullName = user.FullName,
                 Role = user.Role
