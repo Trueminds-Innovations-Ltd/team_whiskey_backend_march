@@ -204,7 +204,10 @@ var app = builder.Build();
 // ============================
 app.UseCors("AllowFrontend");
 app.UseOpenApi();
-app.UseSwaggerUi();
+app.UseSwaggerUi(c =>
+{
+    c.Path = ""; // serve Swagger UI at root "/"
+});
 
 app.UseHttpsRedirection();
 app.UseRouting();
@@ -222,5 +225,5 @@ app.MapGet("/health", () => Results.Ok("Healthy"));
 // PORT (RENDER)
 // ============================
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-Console.WriteLine($"Running in Production - Swagger available at http://0.0.0.0:{port}/swagger");
+Console.WriteLine($"Running in Production - Swagger available at http://0.0.0.0:{port}/");
 app.Run($"http://0.0.0.0:{port}");
