@@ -8,14 +8,10 @@ using TalentFlow.API.Middleware;
 using TalentFlow.Application.Common.Interfaces;
 using TalentFlow.Application.Common.Services;
 using TalentFlow.Application.CourseProgress.Repositories;
-using TalentFlow.Application.LeanersProgress.Commands;
 using TalentFlow.Application.LeanersProgress.Repositories;
-using TalentFlow.Application.Otp.Handlers;
 using TalentFlow.Application.Users.Commands;
 using TalentFlow.Infrastructure.Auth;
-using TalentFlow.Infrastructure.Email;
 using TalentFlow.Infrastructure.Events;
-using TalentFlow.Infrastructure.Messaging;
 using TalentFlow.Infrastructure.Security;
 using TalentFlow.Infrastructure.Services;
 using TalentFlow.Infrastructure.Sms;
@@ -49,7 +45,8 @@ builder.Services.AddScoped<DomainEventDispatcher>();
 // ============================
 // DATABASE CONFIG
 // ============================
-var connectionString = builder.Configuration.GetSection("ConnectionStrings")["Production"];
+var connectionString = builder.Configuration
+    .GetSection("ConnectionStrings")["Production"];
 
 if (string.IsNullOrEmpty(connectionString))
 {
@@ -58,7 +55,9 @@ if (string.IsNullOrEmpty(connectionString))
 
 builder.Services.AddDbContext<TalentFlowDbContext>((serviceProvider, options) =>
 {
-    options.UseNpgsql(connectionString, npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(5));
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+        npgsqlOptions.EnableRetryOnFailure(5));
+
     options.UseApplicationServiceProvider(serviceProvider);
 });
 
@@ -88,34 +87,18 @@ builder.Services.AddScoped<IEventStreamPublisher, EventStreamPublisher>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<OtpDeliveryHandler>();
-builder.Services.AddScoped<TokenService>();
+
+// ✅ JWT
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<TokenService>();
+
+// ✅ Progress Repositories
 builder.Services.AddScoped<ICourseProgressRepository, CourseProgressRepository>();
 builder.Services.AddScoped<ILeanersProgressRepository, LessonProgressRepository>();
-builder.Services.AddScoped<IOtpRepository, OtpRepository>();
-
 
 // ============================
-// Messaging / Email / SMS
+// SMS SERVICE (SAFE)
 // ============================
-var rabbitSection = builder.Configuration.GetSection("RabbitMQ:Production");
-
-if (!int.TryParse(rabbitSection["Port"], out var rabbitPort))
-{
-    throw new Exception("RabbitMQ Port is not configured correctly");
-}
-
-var rabbitHost = rabbitSection["Host"];
-var rabbitUser = rabbitSection["UserName"];
-var rabbitPass = rabbitSection["Password"];
-
-builder.Services.AddSingleton<IMessageBus>(sp =>
-    new RabbitMqMessageBus(rabbitHost, rabbitPort, rabbitUser, rabbitPass));
-
-builder.Services.AddTransient<IEmailService>(sp =>
-    new SendGridEmailService(builder.Configuration["SendGrid:Production:ApiKey"]));
-
 builder.Services.AddScoped<ISmsService>(sp =>
 {
     var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
@@ -129,21 +112,14 @@ builder.Services.AddScoped<ISmsService>(sp =>
 });
 
 // ============================
-// MEDIATR (FIXED - SINGLE REGISTRATION)
+// MEDIATR (ONLY ONCE)
 // ============================
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
     cfg.RegisterServicesFromAssembly(typeof(RegisterUserCommandHandler).Assembly);
-    cfg.RegisterServicesFromAssembly(typeof(UpdateVideoPositionCommand).Assembly);
 });
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(ValidateOtpCommandHandler).Assembly)
-);
 
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(GenerateOtpCommandHandler).Assembly)
-);
 // ============================
 // JWT AUTH
 // ============================
@@ -209,13 +185,14 @@ builder.Services.AddApiVersioning(options =>
 });
 
 // ============================
-// NSwag (Swagger)
+// SWAGGER (NSwag)
 // ============================
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApiDocument(config =>
 {
     config.Title = "TalentFlow API";
     config.Version = "v1";
+
     config.AddSecurity("Bearer", new NSwag.OpenApiSecurityScheme
     {
         Type = NSwag.OpenApiSecuritySchemeType.Http,
@@ -225,6 +202,7 @@ builder.Services.AddOpenApiDocument(config =>
         Name = "Authorization",
         Description = "Enter: Bearer {your JWT token}"
     });
+
     config.OperationProcessors.Add(
         new NSwag.Generation.Processors.Security.AspNetCoreOperationSecurityScopeProcessor("Bearer")
     );
@@ -236,7 +214,7 @@ builder.Services.AddOpenApiDocument(config =>
 var app = builder.Build();
 
 // ============================
-// ERROR HANDLING (ONLY ONE)
+// ERROR HANDLING
 // ============================
 app.UseMiddleware<ExceptionMiddleware>();
 
@@ -245,10 +223,7 @@ app.UseMiddleware<ExceptionMiddleware>();
 // ============================
 app.UseCors("AllowFrontend");
 app.UseOpenApi();
-app.UseSwaggerUi(c =>
-{
-    c.Path = "";
-});
+app.UseSwaggerUi(c => { c.Path = ""; });
 
 app.UseHttpsRedirection();
 app.UseRouting();
@@ -266,6 +241,20 @@ app.MapGet("/health", () => Results.Ok("Healthy"));
 // PORT (RENDER)
 // ============================
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-Console.WriteLine($"Running in Production on port {port}");
+
+Console.WriteLine($"🚀 Running on port {port}");
+
+try
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<TalentFlowDbContext>();
+    db.Database.CanConnect();
+    Console.WriteLine("✅ Database Connected");
+}
+catch (Exception ex)
+{
+    Console.WriteLine("❌ Database Connection Failed:");
+    Console.WriteLine(ex.Message);
+}
 
 app.Run($"http://0.0.0.0:{port}");
