@@ -9,7 +9,7 @@ namespace TalentFlow.Domain.Entities
         public string Code { get; set; } = string.Empty;
         public string Channel { get; set; } = "email"; // email or sms
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime ExpiresAt { get; set; }
+        public DateTime ExpiresAt { get; set; } 
         public bool IsUsed { get; set; } = false;
 
         // ✅ Parameterless constructor for EF Core and object initializers
