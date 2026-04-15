@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TalentFlow.Application.Common.Interfaces;
 using TalentFlow.Application.Common.Models;
-using TalentFlow.Application.Common.Services;
 using TalentFlow.Application.Otp.Commands;
 using TalentFlow.Application.Users.Commands;
 
@@ -11,9 +11,9 @@ using TalentFlow.Application.Users.Commands;
 public class AuthController : ControllerBase
 {
     private readonly IMediator _mediator;
-    private readonly TokenService _tokenService;
+    private readonly IJwtTokenService _tokenService;
 
-    public AuthController(IMediator mediator, TokenService tokenService)
+    public AuthController(IMediator mediator, IJwtTokenService tokenService)
     {
         _mediator = mediator;
         _tokenService = tokenService;
@@ -68,12 +68,22 @@ public class AuthController : ControllerBase
         if (userDto == null)
             return BadRequest(ApiResponse<string>.Fail("Invalid or expired OTP", 400));
 
-        var tokens = _tokenService.IssueTokens(userDto);
+        var accessToken = _tokenService.GenerateToken(
+            userDto.Id,
+            userDto.Email,
+            userDto.Role
+        );
+
+        var refreshToken = _tokenService.GenerateRefreshToken(
+            userDto.Id,
+            userDto.Email,
+            userDto.Role
+        );
 
         return Ok(ApiResponse<object>.Success(new
         {
-            accessToken = tokens.accessToken,
-            refreshToken = tokens.refreshToken
+            accessToken,
+            refreshToken
         }, "OTP verified successfully. Tokens issued."));
     }
 }

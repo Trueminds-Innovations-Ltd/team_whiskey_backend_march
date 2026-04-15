@@ -18,7 +18,8 @@
 
   <ItemGroup>
     <Folder Include="CourseProgress\Repositories\" />
-    <Folder Include="LessonProgress\Repositories\" />
+    <Folder Include="LessonProgress\Commands\" />
+    <Folder Include="LessonProgress\DTOs\" />
   </ItemGroup>
 
 </Project>

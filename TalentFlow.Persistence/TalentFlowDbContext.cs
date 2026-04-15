@@ -37,14 +37,16 @@ namespace TalentFlow.Persistence
         public DbSet<Role> Roles { get; set; } = null!;
         public DbSet<Progress> Progresses { get; set; } = null!;
         public DbSet<Lesson> Lessons { get; set; } = null!;
+        public DbSet<CourseProgress> CourseProgresses { get; set; }
         public DbSet<Team> Teams { get; set; } = null!;
         public DbSet<Certificate> Certificates { get; set; } = null!;
         public DbSet<Video> Videos { get; set; } = null!;
         public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
         public DbSet<OtpCode> OtpCodes { get; set; } = null!;
         public DbSet<Submission> Submissions { get; set; } = null!;
-        public DbSet<LessonProgress> LessonProgresses { get; set; } = null!;
-        public DbSet<CourseProgress> CourseProgresses { get; set; } = null!;
+        
+        public DbSet<LessonProgress> LessonProgresses { get; set; }
+       
 
 
 

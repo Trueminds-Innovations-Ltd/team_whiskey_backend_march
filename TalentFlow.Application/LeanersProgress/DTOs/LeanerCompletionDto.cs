@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace TalentFlow.Application.LessonProgress.DTOs
+namespace TalentFlow.Application.LeanersProgress.DTOs
 {
-    public class LessonCompletionDto
+    public class LeanerCompletionDto
     {
         public DateTime CompletedAt { get; set; }
         public Guid? NextLessonId { get; set; }

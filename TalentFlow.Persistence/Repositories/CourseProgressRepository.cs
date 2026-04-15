@@ -1,18 +1,18 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using TalentFlow.Application.CourseProgress.DTOs;
 using TalentFlow.Application.CourseProgress.Repositories;
 using TalentFlow.Domain.Entities;
 
 namespace TalentFlow.Persistence.Repositories
 {
-    public class CourseProgressRepository 
+    public class CourseProgressRepository : ICourseProgressRepository
     {
         private readonly TalentFlowDbContext _db;
 
-        public CourseProgressRepository(TalentFlowDbContext db) => _db = db;
+        public CourseProgressRepository(TalentFlowDbContext db)
+        {
+            _db = db;
+        }
 
         public async Task<decimal> CalculatePercentageAsync(Guid userId, Guid lessonId, CancellationToken ct)
         {
@@ -20,11 +20,15 @@ namespace TalentFlow.Persistence.Repositories
             if (lesson == null) return 0;
 
             var courseId = lesson.CourseId;
-            var totalLessons = await _db.Lessons.CountAsync(l => l.CourseId == courseId, ct);
+
+            var totalLessons = await _db.Lessons
+                .CountAsync(l => l.CourseId == courseId, ct);
+
             if (totalLessons == 0) return 0;
 
             var completedLessons = await _db.LessonProgresses
-                .CountAsync(lp => lp.UserId == userId && lp.CompletedAt != null &&
+                .CountAsync(lp => lp.UserId == userId &&
+                                  lp.CompletedAt != null &&
                                   _db.Lessons.Any(l => l.Id == lp.LessonId && l.CourseId == courseId), ct);
 
             return Math.Round((decimal)completedLessons / totalLessons * 100, 2);
@@ -36,6 +40,7 @@ namespace TalentFlow.Persistence.Repositories
             if (lesson == null) return;
 
             var courseId = lesson.CourseId;
+
             var courseProgress = await _db.CourseProgresses
                 .FirstOrDefaultAsync(cp => cp.CourseId == courseId && cp.UserId == userId, ct);
 
@@ -50,6 +55,7 @@ namespace TalentFlow.Persistence.Repositories
                     CertificateUnlocked = percentage >= 100,
                     CompletedAt = percentage >= 100 ? DateTime.UtcNow : null
                 };
+
                 await _db.CourseProgresses.AddAsync(courseProgress, ct);
             }
             else
@@ -70,6 +76,22 @@ namespace TalentFlow.Persistence.Repositories
                 .OrderBy(l => l.Order)
                 .Select(l => l.Id)
                 .FirstOrDefaultAsync(ct);
+        }
+        public async Task<CourseProgressDto?> GetProgressAsync(Guid userId, Guid courseId, CancellationToken ct)
+        {
+            var progress = await _db.CourseProgresses
+                .FirstOrDefaultAsync(cp => cp.UserId == userId && cp.CourseId == courseId, ct);
+
+            if (progress == null)
+                return null;
+
+            return new CourseProgressDto
+            {
+                CourseId = progress.CourseId,
+                Percentage = progress.Percentage,
+                CertificateUnlocked = progress.CertificateUnlocked,
+                CompletedAt = progress.CompletedAt
+            };
         }
     }
 }

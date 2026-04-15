@@ -1,36 +1,35 @@
-﻿// File Path: TalentFlow.Infrastructure/Auth/JwtTokenService.cs
-
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using TalentFlow.Application.Common.Interfaces;
 using TalentFlow.Domain.Entities;
 
 namespace TalentFlow.Infrastructure.Auth
 {
-    public class JwtTokenService
+    public class JwtTokenService : IJwtTokenService
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration _config;
 
-        public JwtTokenService(IConfiguration configuration)
+        public JwtTokenService(IConfiguration config)
         {
-            _configuration = configuration;
+            _config = config;
         }
 
-        public string GenerateToken(Guid learnerId, string email, string roleName)
+        public string GenerateToken(Guid userId, string email, string role)
         {
             var claims = new[]
             {
-                new Claim("learner_id", learnerId.ToString()),
+                new Claim("userId", userId.ToString()),
                 new Claim(ClaimTypes.Email, email),
-                new Claim(ClaimTypes.Role, roleName)
+                new Claim(ClaimTypes.Role, role)
             };
 
-            var secret = _configuration["Jwt:Secret"]
-                         ?? throw new InvalidOperationException("JWT secret is not configured");
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_config["Jwt:Production:Secret"])
+            );
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
@@ -38,15 +37,10 @@ namespace TalentFlow.Infrastructure.Auth
                 audience: "TalentFlowApi",
                 claims: claims,
                 expires: DateTime.UtcNow.AddHours(2),
-                signingCredentials: creds);
+                signingCredentials: creds
+            );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        // ✅ Wrapper for consistency
-        public string GenerateAToken(Guid learnerId, string email, string roleName)
-        {
-            return GenerateToken(learnerId, email, roleName);
         }
 
         public RefreshToken GenerateRefreshToken(Guid userId, string email, string role)

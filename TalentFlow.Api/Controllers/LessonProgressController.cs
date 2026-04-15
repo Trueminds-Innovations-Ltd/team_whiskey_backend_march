@@ -3,8 +3,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TalentFlow.Application.LearningProgress.Commands;
-using TalentFlow.Application.LessonProgress.Commands;
+using TalentFlow.Application.LeanersProgress.Commands;
 
 namespace TalentFlow.API.Controllers
 {

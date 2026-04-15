@@ -6,9 +6,10 @@ using Serilog;
 using System.Text;
 using TalentFlow.API.Middleware;
 using TalentFlow.Application.Common.Interfaces;
+using TalentFlow.Application.Common.Services;
 using TalentFlow.Application.CourseProgress.Repositories;
-using TalentFlow.Application.LearningProgress.Commands;
-using TalentFlow.Application.LessonProgress.Commands;
+using TalentFlow.Application.LeanersProgress.Commands;
+using TalentFlow.Application.LeanersProgress.Repositories;
 using TalentFlow.Application.Otp.Handlers;
 using TalentFlow.Application.Users.Commands;
 using TalentFlow.Infrastructure.Auth;
@@ -78,6 +79,7 @@ builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
 builder.Services.AddScoped<IVideoRepository, VideoRepository>();
 builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
 builder.Services.AddScoped<IOtpRepository, OtpRepository>();
+builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 
 // ============================
 // SERVICES
@@ -86,8 +88,11 @@ builder.Services.AddScoped<IEventStreamPublisher, EventStreamPublisher>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<OtpDeliveryHandler>();
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<ICourseProgressRepository, CourseProgressRepository>();
+builder.Services.AddScoped<ILeanersProgressRepository, LessonProgressRepository>();
 
 // ============================
 // Messaging / Email / SMS
