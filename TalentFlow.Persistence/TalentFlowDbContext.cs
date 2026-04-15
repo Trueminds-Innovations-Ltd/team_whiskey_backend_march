@@ -1,9 +1,6 @@
 ﻿// File Path: TalentFlow.Persistence/TalentFlowDbContext.cs
 
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using TalentFlow.Domain.Common;
 using TalentFlow.Domain.Entities;
 
@@ -11,7 +8,7 @@ namespace TalentFlow.Persistence
 {
     public class TalentFlowDbContext : DbContext
     {
-        private readonly DomainEventDispatcher _dispatcher;
+        private readonly DomainEventDispatcher? _dispatcher;
 
         public TalentFlowDbContext(DbContextOptions<TalentFlowDbContext> options, DomainEventDispatcher dispatcher)
             : base(options)
@@ -25,6 +22,7 @@ namespace TalentFlow.Persistence
         {
             // No dispatcher needed for tooling
         }
+
         // Existing DbSets
         public DbSet<Course> Courses { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
@@ -37,18 +35,14 @@ namespace TalentFlow.Persistence
         public DbSet<Role> Roles { get; set; } = null!;
         public DbSet<Progress> Progresses { get; set; } = null!;
         public DbSet<Lesson> Lessons { get; set; } = null!;
-        public DbSet<CourseProgress> CourseProgresses { get; set; }
+        public DbSet<CourseProgress> CourseProgresses { get; set; } = null!;
         public DbSet<Team> Teams { get; set; } = null!;
         public DbSet<Certificate> Certificates { get; set; } = null!;
         public DbSet<Video> Videos { get; set; } = null!;
         public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
         public DbSet<OtpCode> OtpCodes { get; set; } = null!;
         public DbSet<Submission> Submissions { get; set; } = null!;
-        
-        public DbSet<LessonProgress> LessonProgresses { get; set; }
-       
-
-
+        public DbSet<LessonProgress> LessonProgresses { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -76,7 +70,7 @@ namespace TalentFlow.Persistence
                 entity.Property(rt => rt.IsRevoked).IsRequired();
             });
 
-            // Optional: configure OTP table
+            // ✅ Configure OTP table
             modelBuilder.Entity<OtpCode>(entity =>
             {
                 entity.ToTable("otp_codes");
@@ -84,6 +78,7 @@ namespace TalentFlow.Persistence
                 entity.Property(o => o.Code).IsRequired().HasMaxLength(6);
             });
 
+            // Ignore navigation property in Assessment
             modelBuilder.Entity<Assessment>().Ignore(a => a.Questions);
 
             // ✅ Seed roles
@@ -113,6 +108,8 @@ namespace TalentFlow.Persistence
 
         private void DispatchDomainEvents()
         {
+            if (_dispatcher == null) return;
+
             var entitiesWithEvents = ChangeTracker
                 .Entries<EntityBase>()
                 .Where(e => e.Entity.DomainEvents.Any())
