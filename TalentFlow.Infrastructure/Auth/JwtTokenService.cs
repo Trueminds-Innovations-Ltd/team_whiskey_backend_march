@@ -29,7 +29,9 @@ namespace TalentFlow.Infrastructure.Auth
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_config["Jwt:Production:Secret"])
             );
-
+            //var keyBytes = Encoding.UTF8.GetBytes(_jwtSettings.Secret);
+            //if (keyBytes.Length < 32)
+            //    throw new Exception("JWT Key must be at least 256 bits (32 bytes");
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(

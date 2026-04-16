@@ -99,6 +99,18 @@ builder.Services.AddScoped<ILeanersProgressRepository, LessonProgressRepository>
 //builder.Services.AddScoped<ISmsService, SmsTermiiService>();
 
 
+builder.Services.AddScoped<ISmsService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var client = httpClientFactory.CreateClient();
+    client.BaseAddress = new Uri("https://api.ng.termii.com/");
+
+    var apiKey = builder.Configuration["Termii:Production:ApiKey"];
+    var senderId = builder.Configuration["Termii:Production:SenderId"];
+
+    return new TalentFlow.Infrastructure.Notifications.TermiiSmsService(client, apiKey, senderId);
+});
+
 // ============================
 // Messaging / Email / SMS
 // ============================
