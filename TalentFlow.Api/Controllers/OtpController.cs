@@ -4,6 +4,7 @@ using TalentFlow.Application.Common.Models;
 using TalentFlow.Application.Common.Services;
 using TalentFlow.Application.Otp.Commands;
 
+
 [ApiController]
 [Route("api/[controller]")]
 public class OtpController : ControllerBase

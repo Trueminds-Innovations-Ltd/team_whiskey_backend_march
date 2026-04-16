@@ -7,9 +7,10 @@ using TalentFlow.Application.Dashboard.Queries;
 
 namespace TalentFlow.API.Controllers
 {
+
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = "RequireLearner")]
+    //  [Authorize(Policy = "RequireLearner")]
     public class DashboardController : ControllerBase
     {
         private readonly IMediator _mediator;

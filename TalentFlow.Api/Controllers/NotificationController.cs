@@ -12,9 +12,10 @@ using TalentFlow.Domain.Entities;
 
 namespace TalentFlow.API.Controllers
 {
-    [ApiController]
+
+    //[ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    //[Authorize]
     public class NotificationController : ControllerBase
     {
         private readonly IMediator _mediator;

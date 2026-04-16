@@ -9,9 +9,10 @@ using TalentFlow.Application.Submissions.DTOs;
 
 namespace TalentFlow.API.Controllers
 {
+
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    //[Authorize]
     public class SubmissionController : ControllerBase
     {
         private readonly IMediator _mediator;

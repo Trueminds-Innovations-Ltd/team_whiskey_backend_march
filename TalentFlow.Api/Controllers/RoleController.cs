@@ -7,9 +7,10 @@ using TalentFlow.Application.Roles.DTOs;
 
 namespace TalentFlow.API.Controllers
 {
+
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")] // restrict all endpoints to Admins
+    //[Authorize(Roles = "Admin")] // restrict all endpoints to Admins
     public class RoleController : ControllerBase
     {
         private readonly IMediator _mediator;
