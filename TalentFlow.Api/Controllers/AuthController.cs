@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿// File Path: TalentFlow.Api/Controllers/AuthController.cs
+
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TalentFlow.Application.Common.Interfaces;
@@ -19,15 +21,20 @@ public class AuthController : ControllerBase
         _tokenService = tokenService;
     }
 
+    // ============================
+    // REGISTER
+    // ============================
     [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
     {
         var userDto = await _mediator.Send(command);
+
         if (userDto == null)
             return BadRequest(ApiResponse<string>.Fail("Invalid registration data", 400));
 
-        await _mediator.Send(new GenerateOtpCommand
+        // Generate OTP
+        var otpCode = await _mediator.Send(new GenerateOtpCommand
         {
             UserId = userDto.Id,
             Channel = "email"
@@ -38,36 +45,50 @@ public class AuthController : ControllerBase
             id = userDto.Id,
             full_name = userDto.FullName,
             email = userDto.Email,
-            role = userDto.Role
+            role = userDto.Role,
+            otp = otpCode // ✅ TEMP: show OTP for testing
         }, "User registered successfully. Please verify OTP.", 201));
     }
 
-
+    // ============================
+    // LOGIN
+    // ============================
     [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginUserCommand command)
     {
         var userDto = await _mediator.Send(command);
+
         if (userDto == null)
             return Unauthorized(ApiResponse<string>.Fail("Invalid email or password", 401));
 
-        await _mediator.Send(new GenerateOtpCommand
+        // Generate OTP
+        var otpCode = await _mediator.Send(new GenerateOtpCommand
         {
             UserId = userDto.Id,
             Channel = "email"
         });
 
-        return Ok(ApiResponse<string>.Success("Login successful. OTP sent to your email."));
+        return Ok(ApiResponse<object>.Success(new
+        {
+            message = "Login successful. OTP sent.",
+            otp = otpCode // ✅ TEMP: show OTP
+        }));
     }
 
+    // ============================
+    // VERIFY OTP
+    // ============================
     [AllowAnonymous]
     [HttpPost("verify-otp")]
     public async Task<IActionResult> VerifyOtp([FromBody] ValidateOtpCommand command)
     {
         var userDto = await _mediator.Send(command);
+
         if (userDto == null)
             return BadRequest(ApiResponse<string>.Fail($"Invalid or expired OTP for {command.Channel}", 400));
 
+        // Generate JWT Tokens
         var accessToken = _tokenService.GenerateToken(
             userDto.Id,
             userDto.Email,
@@ -83,31 +104,32 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<object>.Success(new
         {
             accessToken,
-            refreshToken,
-            channel = command.Channel
-        }, $"OTP verified successfully via {command.Channel}. Tokens issued."));
+            refreshToken
+        }, "OTP verified successfully. Tokens issued."));
     }
 
-
-
-
-
+    // ============================
+    // RESEND OTP
+    // ============================
     [AllowAnonymous]
     [HttpPost("resend-otp")]
     public async Task<IActionResult> ResendOtp([FromBody] Guid userId)
     {
         var userDto = await _mediator.Send(new GetUserByIdCommand { UserId = userId });
+
         if (userDto == null)
             return NotFound(ApiResponse<string>.Fail("User not found", 404));
 
-        await _mediator.Send(new GenerateOtpCommand
+        var otpCode = await _mediator.Send(new GenerateOtpCommand
         {
             UserId = userDto.Id,
             Channel = "email"
         });
 
-        return Ok(ApiResponse<string>.Success("A new OTP has been sent to your email."));
+        return Ok(ApiResponse<object>.Success(new
+        {
+            message = "New OTP sent",
+            otp = otpCode // ✅ TEMP
+        }));
     }
-
-
 }
