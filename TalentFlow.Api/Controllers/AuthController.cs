@@ -8,7 +8,6 @@ using TalentFlow.Application.Common.Models;
 using TalentFlow.Application.Otp.Commands;
 using TalentFlow.Application.Users.Commands;
 
-[ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
