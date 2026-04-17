@@ -2,22 +2,16 @@
 
 public class SmtpSmsService : ISmsService
 {
-    private readonly IEmailService _emailService;
-
-    public SmtpSmsService(IEmailService emailService)
+    public Task SendAsync(string phoneNumber, string message)
     {
-        _emailService = emailService;
+        // 🚫 Email-to-SMS does NOT work in Nigeria
+        Console.WriteLine($"[SMS LOG] To: {phoneNumber} | Message: {message}");
+        return Task.CompletedTask;
     }
 
-    public async Task SendAsync(string phoneNumber, string message)
+    public Task SendOtpAsync(string toPhoneNumber, string otpCode)
     {
-        var smsAddress = $"{phoneNumber}@vtext.com"; // Example: Verizon
-        await _emailService.SendOtpAsync(smsAddress, message);
-    }
-
-    public async Task SendOtpAsync(string toPhoneNumber, string otpCode)
-    {
-        var smsAddress = $"{toPhoneNumber}@vtext.com"; // Carrier domain configurable
-        await _emailService.SendOtpAsync(smsAddress, otpCode);
+        Console.WriteLine($"[SMS OTP] To: {toPhoneNumber} | OTP: {otpCode}");
+        return Task.CompletedTask;
     }
 }

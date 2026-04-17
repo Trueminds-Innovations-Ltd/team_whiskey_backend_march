@@ -23,11 +23,10 @@ public class ValidateOtpCommandHandler : IRequestHandler<ValidateOtpCommand, Use
         if (otp == null || otp.IsUsed || otp.ExpiresAt < DateTime.UtcNow)
             return null;
 
-        // ✅ Mark OTP as used immediately
+        // Mark OTP as used
         otp.IsUsed = true;
         await _otpRepo.UpdateAsync(otp);
 
-        // Return user info for token issuing
         var user = await _userRepo.GetByIdAsync(request.UserId);
         if (user == null) return null;
 

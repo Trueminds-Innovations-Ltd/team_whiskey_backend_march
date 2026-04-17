@@ -2,6 +2,7 @@
 using TalentFlow.Application.Otp.Commands;
 using TalentFlow.Application.Common.Interfaces;
 using TalentFlow.Domain.Entities;
+using System.Security.Cryptography;
 
 namespace TalentFlow.Application.Otp.Handlers
 {
@@ -43,8 +44,8 @@ namespace TalentFlow.Application.Otp.Handlers
                 await _otpRepo.UpdateAsync(otp);
             }
 
-            // 3. Generate new OTP
-            var newOtp = new Random().Next(100000, 999999).ToString();
+            // 3. Generate SECURE OTP (FIXED)
+            var newOtp = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
 
             var otpCode = new OtpCode
             {
@@ -56,14 +57,14 @@ namespace TalentFlow.Application.Otp.Handlers
                 IsUsed = false
             };
 
-            await _otpRepo.AddAsync(otpCode);
+            // 4. Send FIRST (FIXED ORDER)
+            var channel = request.Channel?.ToLower();
 
-            // 4. Send via chosen channel
-            if (request.Channel == "email")
+            if (channel == "email")
             {
                 await _emailService.SendOtpAsync(user.Email, newOtp);
             }
-            else if (request.Channel == "sms")
+            else if (channel == "sms")
             {
                 if (string.IsNullOrWhiteSpace(user.PhoneNumber))
                     throw new Exception("User does not have a valid phone number");
@@ -75,7 +76,10 @@ namespace TalentFlow.Application.Otp.Handlers
                 throw new Exception("Unsupported channel");
             }
 
-            return newOtp; // ⚠️ keep only for development/logging
+            // 5. Save ONLY if sending succeeds
+            await _otpRepo.AddAsync(otpCode);
+
+            return newOtp; // ⚠️ keep for development ONLY
         }
     }
 }

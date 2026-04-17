@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using Sprache;
 using System.Text;
 using TalentFlow.API.Middleware;
 using TalentFlow.Application.Common.Interfaces;
@@ -23,7 +24,6 @@ using TalentFlow.Infrastructure.Security;
 using TalentFlow.Infrastructure.Services;
 using TalentFlow.Infrastructure.Sms;
 
-
 // ❌ SMS (COMMENTED OUT)
 // using TalentFlow.Infrastructure.Sms;
 // using SmsTermiiService = TalentFlow.Infrastructure.Sms.TermiiSmsService;
@@ -32,6 +32,18 @@ using TalentFlow.Persistence;
 using TalentFlow.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ============================
+// LOAD CONFIG (🔥 FIXED POSITION)
+// ============================
+
+// Load .env for LOCAL only
+Env.Load();
+
+// Unified config (Render + local)
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddEnvironmentVariables();
 
 // ============================
 // LOGGING
@@ -90,34 +102,38 @@ builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
 builder.Services.AddScoped<IOtpRepository, OtpRepository>();
 builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 
-
-// Load .env file
-Env.Load();
-
-// Configure SmtpSettings from environment variables
+// ============================
+// SMTP CONFIG
+// ============================
 builder.Services.Configure<SmtpSettings>(options =>
 {
-    options.Server = Environment.GetEnvironmentVariable("SMTP_SERVER")!;
-    options.Port = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT")!);
-    options.SenderName = Environment.GetEnvironmentVariable("SMTP_SENDER_NAME")!;
-    options.SenderEmail = Environment.GetEnvironmentVariable("SMTP_SENDER_EMAIL")!;
-    options.Username = Environment.GetEnvironmentVariable("SMTP_USERNAME")!;
-    options.Password = Environment.GetEnvironmentVariable("SMTP_PASSWORD")!;
+    options.Server = builder.Configuration["SMTP_SERVER"]
+        ?? throw new Exception("SMTP_SERVER not set");
+
+    options.Port = int.Parse(builder.Configuration["SMTP_PORT"]
+        ?? throw new Exception("SMTP_PORT not set"));
+
+    options.SenderName = builder.Configuration["SMTP_SENDER_NAME"]
+        ?? throw new Exception("SMTP_SENDER_NAME not set");
+
+    options.SenderEmail = builder.Configuration["SMTP_SENDER_EMAIL"]
+        ?? throw new Exception("SMTP_SENDER_EMAIL not set");
+
+    options.Username = builder.Configuration["SMTP_USERNAME"]
+        ?? throw new Exception("SMTP_USERNAME not set");
+
+    options.Password = builder.Configuration["SMTP_PASSWORD"]
+        ?? throw new Exception("SMTP_PASSWORD not set");
 });
 
-
-// Register SmsService
-builder.Services.AddTransient<ISmsService, SmtpSmsService>();
+// Register Email + SMS
 builder.Services.AddTransient<IEmailService>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<SmtpSettings>>().Value;
     return new SmtpEmailService(settings);
 });
 
-
-//builder.Services.AddScoped<ISmsService, DummySmsService>();
-//builder.Services.AddScoped<IEmailService, DummyEmailService>();
-
+builder.Services.AddTransient<ISmsService, SmtpSmsService>();
 
 // ============================
 // SERVICES
@@ -126,43 +142,11 @@ builder.Services.AddScoped<IEventStreamPublisher, EventStreamPublisher>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// ❌ Old Notification (COMMENTED)
-// builder.Services.AddScoped<INotificationService, NotificationService>();
-
 builder.Services.AddScoped<OtpDeliveryHandler>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<ICourseProgressRepository, CourseProgressRepository>();
 builder.Services.AddScoped<ILeanersProgressRepository, LessonProgressRepository>();
-
-// ❌ SMS SERVICE (COMMENTED OUT)
-// builder.Services.AddScoped<ISmsService, SmsTermiiService>();
-
-// ✅ Brevo Email ONLY
-// ✅ Email (Brevo or SendGrid)
-
-//builder.Services.AddScoped<IEmailService>(sp =>
-//{
-//    var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient();
-//    var apiKey = builder.Configuration["Brevo:ApiKey"];
-
-//    return new BrevoEmailService(httpClient, apiKey);
-//});
-
-// ❌ OLD SMS REGISTRATION (COMMENTED OUT)
-/*
-builder.Services.AddScoped<ISmsService>(sp =>
-{
-    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-    var client = httpClientFactory.CreateClient();
-    client.BaseAddress = new Uri("https://api.ng.termii.com/");
-
-    var apiKey = builder.Configuration["Termii:Production:ApiKey"];
-    var senderId = builder.Configuration["Termii:Production:SenderId"];
-
-    return new TalentFlow.Infrastructure.Notifications.TermiiSmsService(client, apiKey, senderId);
-});
-*/
 
 // ============================
 // Messaging / Email / SMS
@@ -181,27 +165,10 @@ var rabbitPass = rabbitSection["Password"];
 builder.Services.AddSingleton<IMessageBus>(sp =>
     new RabbitMqMessageBus(rabbitHost, rabbitPort, rabbitUser, rabbitPass));
 
-// ❌ DUPLICATE EMAIL SERVICE (COMMENTED OUT)
-// builder.Services.AddTransient<IEmailService>(sp =>
-//     new SendGridEmailService(builder.Configuration["SendGrid:Production:ApiKey"]));
-
-// ✅ Correct Notification Service (DB logging)
+// ============================
+// Notification
+// ============================
 builder.Services.AddScoped<INotificationService, NotificationService>();
-
-// ❌ SECOND SMS REGISTRATION (COMMENTED OUT)
-/*
-builder.Services.AddScoped<ISmsService>(sp =>
-{
-    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-    var client = httpClientFactory.CreateClient();
-    client.BaseAddress = new Uri("https://api.ng.termii.com/");
-
-    var apiKey = builder.Configuration["Termii:Production:ApiKey"];
-    var senderId = builder.Configuration["Termii:Production:SenderId"];
-
-    return new TalentFlow.Infrastructure.Notifications.TermiiSmsService(client, apiKey, senderId);
-});
-*/
 
 // ============================
 // MEDIATR

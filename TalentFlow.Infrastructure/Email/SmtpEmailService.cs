@@ -15,23 +15,31 @@ namespace TalentFlow.Infrastructure.Email
 
         public async Task SendOtpAsync(string toEmail, string otpCode)
         {
-            using var client = new SmtpClient(_settings.Server, _settings.Port)
+            try
             {
-                Credentials = new NetworkCredential(_settings.Username, _settings.Password),
-                EnableSsl = true
-            };
+                using var client = new SmtpClient(_settings.Server, _settings.Port)
+                {
+                    Credentials = new NetworkCredential(_settings.Username, _settings.Password),
+                    EnableSsl = true
+                };
 
-            var mailMessage = new MailMessage
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(_settings.SenderEmail, _settings.SenderName),
+                    Subject = "Your OTP Code",
+                    Body = $"Your OTP is {otpCode}. Expires in 5 minutes.",
+                    IsBodyHtml = false
+                };
+
+                mailMessage.To.Add(toEmail);
+
+                await client.SendMailAsync(mailMessage);
+            }
+            catch (Exception ex)
             {
-                From = new MailAddress(_settings.SenderEmail, _settings.SenderName),
-                Subject = "Your OTP Code",
-                Body = $"Your OTP is {otpCode}. Expires in 5 minutes.",
-                IsBodyHtml = false
-            };
-
-            mailMessage.To.Add(toEmail);
-
-            await client.SendMailAsync(mailMessage);
+                Console.WriteLine($"[EMAIL ERROR]: {ex.Message}");
+                throw; // 🔥 critical: do NOT swallow errors
+            }
         }
     }
 }
