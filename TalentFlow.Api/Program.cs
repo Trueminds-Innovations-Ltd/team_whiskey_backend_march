@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -89,12 +90,24 @@ builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
 builder.Services.AddScoped<IOtpRepository, OtpRepository>();
 builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 
+
+// Load .env file
+Env.Load();
+
+// Configure SmtpSettings from environment variables
+builder.Services.Configure<SmtpSettings>(options =>
+{
+    options.Server = Environment.GetEnvironmentVariable("SMTP_SERVER")!;
+    options.Port = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT")!);
+    options.SenderName = Environment.GetEnvironmentVariable("SMTP_SENDER_NAME")!;
+    options.SenderEmail = Environment.GetEnvironmentVariable("SMTP_SENDER_EMAIL")!;
+    options.Username = Environment.GetEnvironmentVariable("SMTP_USERNAME")!;
+    options.Password = Environment.GetEnvironmentVariable("SMTP_PASSWORD")!;
+});
+
+
 // Register SmsService
 builder.Services.AddTransient<ISmsService, SmtpSmsService>();
-
-
-//Google Smpt Message
-builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 builder.Services.AddTransient<IEmailService>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<SmtpSettings>>().Value;
