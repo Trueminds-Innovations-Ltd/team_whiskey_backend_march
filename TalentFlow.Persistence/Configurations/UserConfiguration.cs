@@ -17,10 +17,17 @@ namespace TalentFlow.Persistence.Configurations
                    .IsUnique();
 
             builder.Property(u => u.Email)
-                   .IsRequired();
+       .IsRequired()
+       .HasMaxLength(255);
 
             builder.Property(u => u.FullName)
-                   .IsRequired();
+                   .IsRequired()
+                   .HasMaxLength(255);
+
+            builder.Property(u => u.Role)
+                   .IsRequired()
+                   .HasMaxLength(50);
+
         }
     }
 }
