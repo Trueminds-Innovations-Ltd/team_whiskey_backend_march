@@ -89,6 +89,9 @@ builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
 builder.Services.AddScoped<IOtpRepository, OtpRepository>();
 builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 
+// Register SmsService
+builder.Services.AddTransient<ISmsService, SmtpSmsService>();
+
 
 //Google Smpt Message
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
