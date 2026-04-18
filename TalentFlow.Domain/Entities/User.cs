@@ -13,6 +13,7 @@ namespace TalentFlow.Domain.Entities
         public string FullName { get; private set; } = string.Empty;
         public string PasswordHash { get; private set; } = string.Empty;
         public string Role { get; private set; } = "Learner";
+        public string? LastLoginToken { get; set; }
 
         // Business identifiers
         public string LearnerId { get; private set; } = $"TM-{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString().Substring(0, 6)}";

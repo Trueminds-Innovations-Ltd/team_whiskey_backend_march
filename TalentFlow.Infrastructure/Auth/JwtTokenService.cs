@@ -6,55 +6,49 @@ using System.Text;
 using TalentFlow.Application.Common.Interfaces;
 using TalentFlow.Domain.Entities;
 
-namespace TalentFlow.Infrastructure.Auth
+public class JwtTokenService : IJwtTokenService
 {
-    public class JwtTokenService : IJwtTokenService
+    private readonly IConfiguration _config;
+
+    public JwtTokenService(IConfiguration config)
     {
-        private readonly IConfiguration _config;
+        _config = config;
+    }
 
-        public JwtTokenService(IConfiguration config)
+    public string GenerateToken(Guid userId, string email, string role)
+    {
+        var claims = new[]
         {
-            _config = config;
-        }
+            new Claim("userId", userId.ToString()),
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.Role, role)
+        };
 
-        public string GenerateToken(Guid userId, string email, string role)
+        var key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(_config["Jwt:Production:Secret"])
+        );
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: "TalentFlow",
+            audience: "TalentFlowApi",
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(2),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public RefreshToken GenerateRefreshToken(Guid userId, string email, string role)
+    {
+        return new RefreshToken
         {
-            var claims = new[]
-            {
-                new Claim("userId", userId.ToString()),
-                new Claim(ClaimTypes.Email, email),
-                new Claim(ClaimTypes.Role, role)
-            };
-
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_config["Jwt:Production:Secret"])
-            );
-            //var keyBytes = Encoding.UTF8.GetBytes(_jwtSettings.Secret);
-            //if (keyBytes.Length < 32)
-            //    throw new Exception("JWT Key must be at least 256 bits (32 bytes");
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: "TalentFlow",
-                audience: "TalentFlowApi",
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(2),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        public RefreshToken GenerateRefreshToken(Guid userId, string email, string role)
-        {
-            return new RefreshToken
-            {
-                UserId = userId,
-                Email = email,
-                Role = role,
-                Token = Convert.ToBase64String(Guid.NewGuid().ToByteArray()),
-                ExpiresAt = DateTime.UtcNow.AddDays(7)
-            };
-        }
+            UserId = userId,
+            Email = email,
+            Role = role,
+            Token = Convert.ToBase64String(Guid.NewGuid().ToByteArray()),
+            ExpiresAt = DateTime.UtcNow.AddDays(7)
+        };
     }
 }

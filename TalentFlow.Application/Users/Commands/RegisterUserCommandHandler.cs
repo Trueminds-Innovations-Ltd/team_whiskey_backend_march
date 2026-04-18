@@ -20,7 +20,7 @@ namespace TalentFlow.Application.Users.Commands
 
         public async Task<UserDto> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
-            // ✅ Strict email format check
+            // ✅ Email format check
             try
             {
                 var mailAddress = new MailAddress(request.Email);
@@ -37,7 +37,7 @@ namespace TalentFlow.Application.Users.Commands
                 throw new Exception("User with this email already exists");
             }
 
-            // ✅ Password rules (basic strict check)
+            // ✅ Password rules
             if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 8)
             {
                 throw new Exception("Password must be at least 8 characters long");
