@@ -34,7 +34,7 @@ namespace TalentFlow.API.Middleware
 
                 var response = new
                 {
-                    message = "Request failed",//Check
+                    message = "Request failed",//Check failure
                     detail = ex.Message
                 };
 
