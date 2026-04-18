@@ -255,6 +255,20 @@ builder.Services.AddOpenApiDocument(config =>
 {
     config.Title = "TalentFlow API";
     config.Version = "v1";
+
+    config.AddSecurity("Bearer", new NSwag.OpenApiSecurityScheme
+    {
+        Type = NSwag.OpenApiSecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = NSwag.OpenApiSecurityApiKeyLocation.Header,
+        Name = "Authorization",
+        Description = "Enter: Bearer {your JWT token}"
+    });
+
+    config.OperationProcessors.Add(
+        new NSwag.Generation.Processors.Security.AspNetCoreOperationSecurityScopeProcessor("Bearer")
+    );
 });
 
 // ============================
