@@ -34,7 +34,8 @@ public class ValidateOtpCommandHandler : IRequestHandler<ValidateOtpCommand, Use
         {
             Id = user.Id,
             Email = user.Email,
-            FullName = user.FullName
+            FullName = user.FullName,
+            Role = user.Role // 🔥 FIX
         };
     }
 }
