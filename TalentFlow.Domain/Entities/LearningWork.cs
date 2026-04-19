@@ -2,19 +2,20 @@
 
 namespace TalentFlow.Domain.Entities
 {
-    public class LearningTask
+    public class LearningWork
     {
         public Guid Id { get; set; }
-        public Guid AssignedTo { get; set; }   // Learner/User ID
+        public Guid AssignedTo { get; set; }
         public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
+        public string? Details { get; set; }
         public DateTime DueDate { get; set; }
-        public LearningTaskStatus Status { get; set; } = LearningTaskStatus.Pending;
+        public LearningWorkState State { get; set; } = LearningWorkState.Pending;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
     }
 
-    public enum LearningTaskStatus
+
+    public enum LearningWorkState
     {
         Pending,
         InProgress,

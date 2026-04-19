@@ -1,15 +1,17 @@
 ﻿using System;
 using TalentFlow.Domain.Entities;
 
-namespace TalentFlow.Application.LearningTask.DTOs
+namespace TalentFlow.Application.LearningWorks.DTOs
 {
-    public class LearningTaskDto
+    public class LearningWorkDto
     {
         public Guid Id { get; set; }
         public Guid AssignedTo { get; set; }
         public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
+        public string? Details { get; set; }
         public DateTime DueDate { get; set; }
-        public LearningTaskStatus Status { get; set; }
+        public LearningWorkState State { get; set; }
     }
+
+
 }

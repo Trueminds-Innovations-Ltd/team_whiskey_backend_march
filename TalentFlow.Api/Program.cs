@@ -12,6 +12,7 @@ using TalentFlow.Application.Common.Interfaces;
 using TalentFlow.Application.Common.Services;
 using TalentFlow.Application.CourseProgress.Repositories;
 using TalentFlow.Application.Instructors.Queries;
+using TalentFlow.Application.Interfaces;
 using TalentFlow.Application.LeanersProgress.Commands;
 using TalentFlow.Application.LeanersProgress.Repositories;
 using TalentFlow.Application.Otp.Handlers;
@@ -150,6 +151,8 @@ builder.Services.AddScoped<ILeanersProgressRepository, LessonProgressRepository>
 
 builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
 builder.Services.AddScoped<ILessonRepository, LessonRepository>();
+builder.Services.AddScoped<ILearningWorkRepository, LearningWorkRepository>();
+
 
 
 // ============================
@@ -239,9 +242,15 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
-        policy.AllowAnyOrigin()
+    {
+        var allowedOrigins = builder.Configuration
+            .GetSection("AllowedOrigins")
+            .Get<string[]>();
+
+        policy.WithOrigins(allowedOrigins!)
               .AllowAnyHeader()
-              .AllowAnyMethod());
+              .AllowAnyMethod();
+    });
 });
 
 // ============================
