@@ -19,7 +19,7 @@ namespace TalentFlow.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = "RequireAdmin") /*(Roles = "Admin, Instructor")*/]
+    //[Authorize(Policy = "RequireAdmin") /*(Roles = "Admin, Instructor")*/]
     public class CourseController : ControllerBase
     {
         private readonly IMediator _mediator;
