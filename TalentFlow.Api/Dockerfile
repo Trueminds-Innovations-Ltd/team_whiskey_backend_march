@@ -7,6 +7,9 @@ ENV ASPNETCORE_URLS=http://+:${PORT}
 EXPOSE 80
 EXPOSE 443
 
+# Install Kerberos library required by Npgsql
+RUN apt-get update && apt-get install -y libkrb5-3
+
 # Build stage (SDK 10)
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src

@@ -284,6 +284,39 @@ namespace TalentFlow.Persistence.Migrations
                     b.ToTable("instructor");
                 });
 
+            modelBuilder.Entity("TalentFlow.Domain.Entities.LearningWork", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AssignedTo")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("State")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LearningWorks");
+                });
+
             modelBuilder.Entity("TalentFlow.Domain.Entities.Lesson", b =>
                 {
                     b.Property<Guid>("Id")
