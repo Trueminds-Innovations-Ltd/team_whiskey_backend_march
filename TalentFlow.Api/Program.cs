@@ -245,9 +245,13 @@ builder.Services.AddCors(options =>
     {
         var allowedOrigins = builder.Configuration
             .GetSection("AllowedOrigins")
-            .Get<string[]>();
+            .Get<string[]>() ?? new[]
+            {
+                "http://localhost:5173",
+                "https://talent-flow-kappa-six.vercel.app"
+            };
 
-        policy.WithOrigins(allowedOrigins!)
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
