@@ -297,7 +297,7 @@ builder.Services.AddOpenApiDocument(config =>
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
-app.UseMiddleware<AuthMiddleware>();
+//app.UseMiddleware<AuthMiddleware>();
 
 app.UseCors("AllowFrontend");
 

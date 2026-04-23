@@ -75,8 +75,7 @@ namespace TalentFlow.API.Controllers
             return Ok(ApiResponse<object>.Success(course.ToDto(), "Course retrieved successfully"));
         }
 
-        // GET: api/course
-        [HttpGet]
+       
         // GET: api/course
         [HttpGet]
         public async Task<ActionResult<List<CourseDto>>> GetAllCourses()
