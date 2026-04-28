@@ -64,7 +64,7 @@ builder.Host.UseSerilog((ctx, lc) => lc.ReadFrom.Configuration(ctx.Configuration
 // ============================
 // Register controllers and FluentValidation validators from the application assemblies.
 // Note: RegisterValidatorsFromAssemblyContaining<StartupMarker>() will scan for validators.
-// Register controllers and FluentValidation validators
+// Register controllers and FluentValidation validators Package
 builder.Services.AddControllers();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserCommand>();
 // ============================
