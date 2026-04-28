@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using TalentFlow.Application.Users.DTOs;
 
 namespace TalentFlow.Application.Users.Commands
 {
@@ -10,9 +9,16 @@ namespace TalentFlow.Application.Users.Commands
         public string Password { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public string Discipline { get; set; } = string.Empty;
-        public int CohortYear { get; set; }   // ✅ int, matches User entity
+        public int CohortYear { get; set; }
 
-        // ✅ Added PhoneNumber to match User constructor
+        // Optional profile fields
+        public string? Bio { get; set; }
+        public string? ProfilePhotoUrl { get; set; }
+
+        // Optional toggle; null means "not provided" — handler can default to true or false
+        public bool? EmailNotifications { get; set; }
+
+        // Phone number already present
         public string PhoneNumber { get; set; } = string.Empty;
     }
 }

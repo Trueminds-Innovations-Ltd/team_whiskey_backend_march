@@ -56,5 +56,15 @@ namespace TalentFlow.Persistence.Repositories
             _context.Users.Update(user);
             await _context.SaveChangesAsync(ct);
         }
+        public async Task<bool> ExistsByEmailAsync(string email, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return false;
+            var normalized = email.Trim().ToLowerInvariant();
+            return await _context.Users
+                .AsNoTracking()
+                .AnyAsync(u => u.Email.ToLower() == normalized && !u.IsDeleted, ct);
+        }
+
+
     }
 }

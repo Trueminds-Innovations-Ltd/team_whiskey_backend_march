@@ -1,17 +1,17 @@
-﻿using System;
-
-namespace TalentFlow.Application.Users.DTOs
+﻿public class UserDto
 {
-    public class UserDto
-    {
-        public Guid Id { get; set; }
-        public string Email { get; set; } = string.Empty;
-        public string FullName { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
-        public string Discipline { get; set; } = string.Empty;
-        public int CohortYear { get; set; }   // ✅ matches entity
+    public Guid Id { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+    public string Discipline { get; set; } = string.Empty;
+    public int CohortYear { get; set; }
 
-        // ✅ Added PhoneNumber to match User entity
-        public string PhoneNumber { get; set; } = string.Empty;
-    }
+    public string PhoneNumber { get; set; } = string.Empty;
+
+    // New profile fields
+    public string? ProfilePhotoUrl { get; set; }
+    public string? Bio { get; set; }
+    public bool EmailNotifications { get; set; } = true;
+    public string LearnerId { get; internal set; }
 }

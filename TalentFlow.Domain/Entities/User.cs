@@ -39,6 +39,7 @@ namespace TalentFlow.Domain.Entities
         public bool IsDeleted { get; private set; }
         public string? DeletedBy { get; private set; }
         public DateTime? DeletedAt { get; private set; }
+        public bool EmailNotifications { get; set; }
 
         private User() { } // EF Core
 
